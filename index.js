@@ -17,7 +17,7 @@ async function run() {
         const octokit = new github.GitHub(token);
 
         // get requested reviewer list
-        const reviewers = await octokit.listReviewRequests({
+        const reviewers = await octokit.listReviews({
             owner: github.context.payload.pull_request.owner,
             repo: github.context.payload.repository.name,
             pull_number: github.context.payload.number

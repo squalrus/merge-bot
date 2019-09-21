@@ -44,7 +44,7 @@ required labels: ${requiredLabels}
 labels: ${JSON.stringify(labels)}
 reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}
 
-eligible for merge: ${labels.contains(requiredLabels)}`
+eligible for merge: ${labels.includes(requiredLabels)}`
 
             });
         }

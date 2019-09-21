@@ -12,9 +12,14 @@ async function run() {
         const payload = github.context.payload;
         console.log(`The event payload: ${JSON.stringify(github.context.payload, undefined, 2)}`);
 
+        let change = 'unknown';
+
         // check if labeled change
-        if (payload.action == 'labeled' || payload.action == 'unlabeled') {
-            console.log("LABEL CHANGE");
+        if (payload.action == 'labeled') {
+            change = `Label '${payload.label.name}' added`
+        }
+        if (payload.action == 'unlabeled') {
+            change = `Label '${payload.label.name}' removed`
         }
 
         // create a GitHub client
@@ -31,8 +36,12 @@ async function run() {
             repo: payload.repository.name,
             issue_number: payload.number,
             body: `debug mode: ${debug}
+                required labels: ${requiredLabels}
+
                 labels: ${JSON.stringify(labels)}
-                reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`
+                reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}
+
+                > triggered by: ${change}`
         });
     } catch (error) {
         core.setFailed(error.message);

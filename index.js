@@ -13,7 +13,7 @@ async function run() {
         console.log(`The event payload: ${payload}`);
 
         // create a GitHub client
-        const token = core.getInput('token');
+        const token = core.getInput('GITHUB_TOKEN');
         const octokit = new github.GitHub(token);
 
         // get requested reviewer list
@@ -24,6 +24,14 @@ async function run() {
         });
 
         console.log(`Reviewers: ${JSON.stringify(reviewers)}`);
+
+        const labels = octokit.issues.listLabelsOnIssue({
+            owner: github.context.payload.pull_request.user.login,
+            repo: github.context.payload.repository.name,
+            issue_number: github.context.payload.number
+        });
+
+        console.log(`Labels: ${JSON.stringify(labels)}`);
 
         await octokit.issues.createComment({
             owner: 'squalrus',

@@ -31,18 +31,23 @@ async function run() {
         console.log(`Reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`);
         console.log(`Labels: ${JSON.stringify(labels)}`);
 
-        await octokit.issues.createComment({
-            owner: 'squalrus',
-            repo: payload.repository.name,
-            issue_number: payload.number,
-            body: `debug mode: ${debug}
+        if (debug){
+            await octokit.issues.createComment({
+                owner: 'squalrus',
+                repo: payload.repository.name,
+                issue_number: payload.number,
+                body: `### merge bot test mode
+> triggered by: ${change}
+
 required labels: ${requiredLabels}
 
 labels: ${JSON.stringify(labels)}
 reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}
 
-> triggered by: ${change}`
-        });
+eligible for merge: ${labels.contains(requiredLabels)}`
+
+            });
+        }
     } catch (error) {
         core.setFailed(error.message);
     }

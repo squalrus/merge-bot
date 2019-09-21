@@ -14,12 +14,13 @@ try {
     const token = core.getInput('token');
     const octokit = new github.GitHub(token);
 
-    const comment = await octokit.issues.createComment({
+    const { data: comment } = await octokit.issues.createComment({
         owner: 'squalrus',
         repo: payload.repository.name,
         issue_number: payload.number,
         body: `howdy: ${payload.label.name}`
     });
+    console.log(comment);
 } catch (error) {
     core.setFailed(error.message);
 }

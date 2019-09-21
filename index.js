@@ -10,6 +10,16 @@ try {
 
     const payload = JSON.stringify(github.context.payload, undefined, 2);
     console.log(`The event payload: ${payload}`);
+
+    const token = core.getInput('token');
+    const octokit = new github.GitHub(token);
+
+    const comment = await octokit.issues.createComment({
+        owner: 'squalrus',
+        repo: payload.repository.name,
+        issue_number: payload.number,
+        body: `howdy: ${payload.label.name}`
+    });
 } catch (error) {
     core.setFailed(error.message);
 }

@@ -32,7 +32,7 @@ async function run() {
             pull_number: payload.number
         });
 
-        console.log(`Reviewers: ${JSON.stringify(reviewers)}`);
+        console.log(`Reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`);
 
         const { data: labels } = octokit.issues.listLabelsOnIssue({
             owner: payload.pull_request.user.login,
@@ -40,7 +40,7 @@ async function run() {
             issue_number: payload.number
         });
 
-        console.log(`Labels: ${JSON.stringify(labels)}`);
+        console.log(`Labels: ${JSON.stringify(payload.pull_request.labels)}`);
 
         await octokit.issues.createComment({
             owner: 'squalrus',

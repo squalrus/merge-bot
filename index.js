@@ -23,7 +23,7 @@ async function run() {
             pull_number: github.context.payload.number
         });
 
-        console.log(`Reviewers: ${reviewers}`);
+        console.log(`Reviewers: ${JSON.stringify(reviewers)}`);
 
         await octokit.issues.createComment({
             owner: 'squalrus',

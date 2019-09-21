@@ -3,22 +3,18 @@ const github = require('@actions/github');
 
 async function run() {
     try {
-        const nameToGreet = core.getInput('who-to-greet');
-        console.log(`Hello ${nameToGreet}!`);
+        const debug = core.getInput('debug');
+        console.log(`Debug mode: ${debug}`);
 
-        const time = (new Date()).toDateString();
-        core.setOutput('time', time);
+        const requiredLabels = core.getInput('labels');
+        console.log(`Required labels: ${JSON.stringify(requiredLabels)}`);
 
         const payload = github.context.payload;
         console.log(`The event payload: ${JSON.stringify(github.context.payload, undefined, 2)}`);
 
         // check if labeled change
-        if (payload.action == 'labeled') {
-            console.log("LABELED");
-        }
-
-        if (payload.action == 'unlabeled') {
-            console.log("UNLABELED");
+        if (payload.action == 'labeled' || payload.action == 'unlabeled') {
+            console.log("LABEL CHANGE");
         }
 
         // create a GitHub client
@@ -26,20 +22,8 @@ async function run() {
         const octokit = new github.GitHub(token);
 
         // get requested reviewer list
-        const { data: reviewers } = await octokit.pulls.listReviews({
-            owner: payload.pull_request.user.login,
-            repo: payload.repository.name,
-            pull_number: payload.number
-        });
 
         console.log(`Reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`);
-
-        const { data: labels } = octokit.issues.listLabelsOnIssue({
-            owner: payload.pull_request.user.login,
-            repo: payload.repository.name,
-            issue_number: payload.number
-        });
-
         console.log(`Labels: ${JSON.stringify(payload.pull_request.labels)}`);
 
         await octokit.issues.createComment({

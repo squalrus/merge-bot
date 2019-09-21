@@ -1,13 +1,14 @@
-name: 'Hello World'
-description: 'Greet someone and record time'
+name: 'Pull Request Merge'
+description: 'Merge a pull request after reviewed and labeled'
 inputs:
-  who-to-greet:
-    description: 'Who to greet'
+  debug:
+    description: 'Runs in debug mode and will comment rather than merge'
+    required: false
+    default: false
+  labels:
+    description: 'Labels required for integration'
     required: true
-    default: 'World'
-outputs:
-  time:
-    description: 'The time we greeted you'
+    default: 'ready'
 runs:
   using: 'node12'
   main: 'index.js'

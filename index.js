@@ -6,6 +6,9 @@ async function run() {
         const debug = core.getInput('debug');
         console.log(`Debug mode: ${debug}`);
 
+        const requiredReviewers = core.getInput('reviewers');
+        console.log(`Required reviewers: ${requiredReviewers}`);
+
         const requiredLabels = core.getInput('labels');
         console.log(`Required labels: ${JSON.stringify(requiredLabels)}`);
 
@@ -39,11 +42,15 @@ async function run() {
                 body: `### merge bot test mode
 > triggered by: ${change}
 
-required labels: ${requiredLabels}
+#### integration requirements
+required label(s): ${requiredLabels}
+reviewers required: ${requiredReviewers}
 
+#### pull request stats
 labels: ${JSON.stringify(labels)}
 reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}
 
+#### result
 eligible for merge: ${labels.includes(requiredLabels)}`
 
             });

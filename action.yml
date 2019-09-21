@@ -9,6 +9,10 @@ inputs:
     description: 'Labels required for integration'
     required: true
     default: 'ready'
+  reviewers:
+    description: 'Reviewers required and reviewers must sign-off'
+    required: false
+    default: true
 runs:
   using: 'node12'
   main: 'index.js'

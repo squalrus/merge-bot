@@ -16,9 +16,9 @@ try {
 
     const { data: comment } = octokit.issues.createComment({
         owner: 'squalrus',
-        repo: payload.repository.name,
-        issue_number: payload.number,
-        body: `howdy: ${payload.label.name}`
+        repo: github.context.payload.repository.name,
+        issue_number: github.context.payload.number,
+        body: `howdy: ${github.context.payload.label.name}`
     });
     console.log(comment);
 } catch (error) {

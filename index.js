@@ -21,16 +21,20 @@ async function run() {
         const token = core.getInput('GITHUB_TOKEN');
         const octokit = new github.GitHub(token);
 
-        // get requested reviewer list
+        const labels = payload.pull_request.labels.map(() => {
+            return this.name;
+        })
 
         console.log(`Reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`);
-        console.log(`Labels: ${JSON.stringify(payload.pull_request.labels)}`);
+        console.log(`Labels: ${JSON.stringify(labels)}`);
 
         await octokit.issues.createComment({
             owner: 'squalrus',
             repo: payload.repository.name,
             issue_number: payload.number,
-            body: `howdy: ${payload.label.name}`
+            body: `debug mode: ${debug}
+                labels: ${JSON.stringify(labels)}
+                reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`
         });
     } catch (error) {
         core.setFailed(error.message);

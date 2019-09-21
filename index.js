@@ -26,7 +26,7 @@ async function run() {
         const octokit = new github.GitHub(token);
 
         // get requested reviewer list
-        const reviewers = await octokit.pulls.listReviews({
+        const { data: reviewers } = await octokit.pulls.listReviews({
             owner: payload.pull_request.user.login,
             repo: payload.repository.name,
             pull_number: payload.number
@@ -34,7 +34,7 @@ async function run() {
 
         console.log(`Reviewers: ${JSON.stringify(reviewers)}`);
 
-        const labels = octokit.issues.listLabelsOnIssue({
+        const { data: labels } = octokit.issues.listLabelsOnIssue({
             owner: payload.pull_request.user.login,
             repo: payload.repository.name,
             issue_number: payload.number

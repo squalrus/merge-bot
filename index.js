@@ -1,4 +1,4 @@
-return async function() {
+async function run() {
     const core = require('@actions/core');
     const github = require('@actions/github');
 
@@ -26,3 +26,5 @@ return async function() {
         core.setFailed(error.message);
     }
 }
+
+run();

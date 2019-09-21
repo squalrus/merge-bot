@@ -21,9 +21,7 @@ async function run() {
         const token = core.getInput('GITHUB_TOKEN');
         const octokit = new github.GitHub(token);
 
-        const labels = payload.pull_request.labels.map(() => {
-            return this.name;
-        })
+        const labels = payload.pull_request.labels.map(x => x.name);
 
         console.log(`Reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`);
         console.log(`Labels: ${JSON.stringify(labels)}`);

@@ -14,7 +14,7 @@ try {
     const token = core.getInput('token');
     const octokit = new github.GitHub(token);
 
-    const { data: comment } = await octokit.issues.createComment({
+    const { data: comment } = octokit.issues.createComment({
         owner: 'squalrus',
         repo: payload.repository.name,
         issue_number: payload.number,

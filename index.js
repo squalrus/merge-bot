@@ -36,12 +36,12 @@ async function run() {
             repo: payload.repository.name,
             issue_number: payload.number,
             body: `debug mode: ${debug}
-                required labels: ${requiredLabels}
+required labels: ${requiredLabels}
 
-                labels: ${JSON.stringify(labels)}
-                reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}
+labels: ${JSON.stringify(labels)}
+reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}
 
-                > triggered by: ${change}`
+> triggered by: ${change}`
         });
     } catch (error) {
         core.setFailed(error.message);

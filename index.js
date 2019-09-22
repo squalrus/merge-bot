@@ -51,7 +51,7 @@ labels: ${JSON.stringify(labels)}
 reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}
 
 #### result
-eligible for merge: ${labels.every(x => requiredLabels.includes(x))}`
+eligible for merge: ${requiredLabels.every(x => labels.includes(x))}`
 
             });
         }

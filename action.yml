@@ -1,5 +1,8 @@
-name: 'Pull Request Merge'
-description: 'Merge a pull request after reviewed and labeled'
+name: 'Merge Bot'
+description: 'Merge pull requests when certain conditions are met'
+branding:
+  icon: 'git-merge'
+  color: 'purple'
 inputs:
   test:
     description: 'Runs in test mode and will comment rather than merge'

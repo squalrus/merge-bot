@@ -1,6 +1,6 @@
 # Merge bot
 
-The action will merge PRs when certain conditions are met:
+The action will merge pull requests when certain conditions are met:
 
 - specified labels are adde to a pull request
 

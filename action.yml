@@ -13,6 +13,10 @@ inputs:
     description: 'Reviewers required and reviewers must sign-off'
     required: false
     default: true
+  method:
+    description: 'Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default is `merge`.'
+    required: false
+    default: 'merge'
 runs:
   using: 'node12'
   main: 'index.js'

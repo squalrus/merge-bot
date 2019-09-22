@@ -34,7 +34,7 @@ async function run() {
         console.log(`reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`);
         console.log(`labels: ${JSON.stringify(labels)}`);
 
-        if (debug){
+        if (test){
             await octokit.issues.createComment({
                 owner: 'squalrus',
                 repo: payload.repository.name,

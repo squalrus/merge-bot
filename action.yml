@@ -1,8 +1,8 @@
 name: 'Pull Request Merge'
 description: 'Merge a pull request after reviewed and labeled'
 inputs:
-  debug:
-    description: 'Runs in debug mode and will comment rather than merge'
+  test:
+    description: 'Runs in test mode and will comment rather than merge'
     required: false
     default: false
   labels:

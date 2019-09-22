@@ -3,17 +3,17 @@ const github = require('@actions/github');
 
 async function run() {
     try {
-        const debug = core.getInput('debug');
-        console.log(`Debug mode: ${debug}`);
+        const test = core.getInput('test');
+        console.log(`test mode: ${test}`);
 
         const requiredReviewers = core.getInput('reviewers');
-        console.log(`Required reviewers: ${requiredReviewers}`);
+        console.log(`required reviewers: ${requiredReviewers}`);
 
         const requiredLabels = core.getInput('labels');
-        console.log(`Required labels: ${JSON.stringify(requiredLabels)}`);
+        console.log(`required labels: ${JSON.stringify(requiredLabels)}`);
 
         const payload = github.context.payload;
-        console.log(`The event payload: ${JSON.stringify(github.context.payload, undefined, 2)}`);
+        console.log(`the event payload: ${JSON.stringify(github.context.payload, undefined, 2)}`);
 
         let change = 'unknown';
 
@@ -31,8 +31,8 @@ async function run() {
 
         const labels = payload.pull_request.labels.map(x => x.name);
 
-        console.log(`Reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`);
-        console.log(`Labels: ${JSON.stringify(labels)}`);
+        console.log(`reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`);
+        console.log(`labels: ${JSON.stringify(labels)}`);
 
         if (debug){
             await octokit.issues.createComment({

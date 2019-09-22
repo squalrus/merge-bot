@@ -43,7 +43,7 @@ async function run() {
 > triggered by: ${change}
 
 #### integration requirements
-required label(s): ${requiredLabels}
+required label(s): ${JSON.stringify(requiredLabels)}
 reviewers required: ${requiredReviewers}
 
 #### pull request stats

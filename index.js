@@ -58,7 +58,7 @@ eligible for merge: ${requiredLabels.every(x => labels.includes(x))}`
             octokit.pulls.merge({
                 owner: payload.pull_request.user.login,
                 repo: payload.repository.name,
-                issue_number: payload.number,
+                pull_number: payload.number,
             });
         }
     } catch (error) {

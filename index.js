@@ -12,6 +12,9 @@ async function run() {
         const requiredLabels = core.getInput('labels').split(',').map(x => x.trim());
         console.log(`required labels: ${JSON.stringify(requiredLabels)}`);
 
+        const method = core.getInput('method');
+        console.log(`merge method: ${method}`);
+
         const payload = github.context.payload;
         console.log(`the event payload: ${JSON.stringify(github.context.payload, undefined, 2)}`);
 
@@ -45,6 +48,7 @@ async function run() {
 #### integration requirements
 required label(s): ${JSON.stringify(requiredLabels)}
 reviewers required: ${requiredReviewers}
+merge method: ${method}
 
 #### pull request stats
 labels: ${JSON.stringify(labels)}
@@ -59,6 +63,7 @@ eligible for merge: ${requiredLabels.every(x => labels.includes(x))}`
                 owner: payload.pull_request.user.login,
                 repo: payload.repository.name,
                 pull_number: payload.number,
+                merge_method: method
             });
         }
     } catch (error) {

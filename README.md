@@ -1,21 +1,44 @@
-# Hello world javascript action
+# Merge bot
 
-This action prints "Hello World" or "Hello" + the name of a person to greet to the log.
+The action will merge PRs when certain conditions are met:
+
+- specified labels are adde to a pull request
 
 ## Inputs
 
-### `who-to-greet`
+### `test`
 
-**Required** The name of the person to greet. Default `"World"`.
+Runs in test mode and will comment rather than merge. Default is `false`.
 
-## Outputs
+### `labels`
 
-### `time`
+Labels required for integration. Default is `"ready"`.
 
-The time we greeted you.
+### `method`
+
+Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default is `merge`.
 
 ## Example usage
 
-uses: actions/hello-world-javascript-action@v1
-with:
-  who-to-greet: 'Mona the Octocat'
+```yaml
+name: Merge Bot
+
+on:
+  pull_request_review:
+    types: [submitted, dismissed]
+  pull_request:
+    types: [labeled, unlabeled]
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    name: Merge
+    steps:
+    - name: Integration check
+      uses: squalrus/merge-bot@master
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        test: true
+        labels: ready, merge
+        method: 'squash'
+```

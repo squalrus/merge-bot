@@ -34,9 +34,9 @@ async function run() {
         console.log(`reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}`);
         console.log(`labels: ${JSON.stringify(labels)}`);
 
-        if (test){
+        if (test) {
             await octokit.issues.createComment({
-                owner: 'squalrus',
+                owner: payload.pull_request.user.login,
                 repo: payload.repository.name,
                 issue_number: payload.number,
                 body: `### merge bot test mode
@@ -53,6 +53,12 @@ reviewers: ${JSON.stringify(payload.pull_request.requested_reviewers)}
 #### result
 eligible for merge: ${requiredLabels.every(x => labels.includes(x))}`
 
+            });
+        } else {
+            octokit.pulls.merge({
+                owner: payload.pull_request.user.login,
+                repo: payload.repository.name,
+                issue_number: payload.number,
             });
         }
     } catch (error) {

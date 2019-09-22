@@ -1,4 +1,4 @@
-name: 'Merge Bot'
+name: 'PR Merge Bot'
 description: 'Merge pull requests when certain conditions are met'
 branding:
   icon: 'git-merge'

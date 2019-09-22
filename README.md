@@ -1,4 +1,4 @@
-# Merge bot
+# PR Merge bot
 
 The action will merge pull requests when certain conditions are met:
 

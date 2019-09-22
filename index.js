@@ -9,7 +9,7 @@ async function run() {
         const requiredReviewers = core.getInput('reviewers');
         console.log(`required reviewers: ${requiredReviewers}`);
 
-        const requiredLabels = core.getInput('labels');
+        const requiredLabels = core.getInput('labels').split(',').map(x => x.trim());
         console.log(`required labels: ${JSON.stringify(requiredLabels)}`);
 
         const payload = github.context.payload;

@@ -1,18 +1,38 @@
-# PR Merge bot
+# PR Merge Bot
 
-The action will merge pull requests when certain conditions are met:
+This action manages pull request integrations by allowing a structured workflow to be defined.
 
-- specified labels are adde to a pull request
+The workflow can use required labels, blocking labels, and require that reviewers sign-off.
+
+Once conditions are met the pull request will be integrated and branch deleted.
+
+![merged GitHub pull request and deleted branch](./assets/integrate.png)
 
 ## Inputs
 
 ### `test`
 
-Runs in test mode and will comment rather than merge. Default is `false`.
+Runs in test mode and will comment rather than merge. This allows you to experiment with the settings without integrating a pull request. Default is `false`.
+
+![test mode comment left by the bot](./assets/test-mode.png)
+
+### `reviewers`
+
+Reviewers required, and reviewers must all approve. This enforces a reviewer mode where there cannot be any pending reviews and the submitted reviews must be in an "approved" state. Default is `true`.
+
+![reviewer has signed-off on pull request](./assets/reviewer.png)
 
 ### `labels`
 
-Labels required for integration. Default is `"ready"`.
+One or more labels required for integration. Default is `"ready"`.
+
+![merge and sign-off GitHub labels](./assets/labels.png)
+
+### `blocking-labels`
+
+One or more labels that block the integration. Default is `"do not merge"`.
+
+![do not merge GitHub label](./assets/blocking-label.png)
 
 ### `method`
 
@@ -24,10 +44,9 @@ Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default 
 name: Merge Bot
 
 on:
-  pull_request_review:
-    types: [submitted, dismissed]
   pull_request:
-    types: [labeled, unlabeled]
+    types: [labeled, unlabeled, review_requested, review_request_removed]
+  pull_request_review:
 
 jobs:
   merge:
@@ -35,10 +54,12 @@ jobs:
     name: Merge
     steps:
     - name: Integration check
-      uses: squalrus/merge-bot@master
+      uses: squalrus/merge-bot@v0.2.0
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         test: true
+        reviewers: true
         labels: ready, merge
-        method: 'squash'
+        blocking-labels: do not merge
+        method: squash
 ```

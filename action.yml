@@ -12,8 +12,12 @@ inputs:
     description: 'Labels required for integration'
     required: true
     default: 'ready'
+  blocking-labels:
+    description: 'Labels that block the integration'
+    required: false
+    default: 'do not merge'
   reviewers:
-    description: 'Reviewers required and reviewers must sign-off'
+    description: 'Reviewers required and reviewers must all approve'
     required: false
     default: true
   method:

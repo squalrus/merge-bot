@@ -12,6 +12,10 @@ function reviewsCompleted(required, requests, reviews) {
         return false;
     }
 
+    if (Object.keys(reviews).length == 0) {
+        return false;
+    }
+
     // reviews all approved
     for (let [key, value] of Object.entries(reviews)) {
         console.log(key, value);

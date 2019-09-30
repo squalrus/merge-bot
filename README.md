@@ -40,6 +40,8 @@ Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default 
 
 ## Example usage
 
+You can use PR Merge Bot by configuring a YAML-based workflow file, e.g. `.github/workflows/merge-bot.yml`.
+
 ```yaml
 name: Merge Bot
 

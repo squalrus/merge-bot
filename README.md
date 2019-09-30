@@ -47,7 +47,7 @@ name: Merge Bot
 
 on:
   pull_request:
-    types: [labeled, unlabeled, review_requested, review_request_removed]
+    types: [labeled, unlabeled, review_request_removed]
   pull_request_review:
 
 jobs:

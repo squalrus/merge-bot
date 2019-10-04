@@ -24,6 +24,19 @@ async function run() {
 
         pull.compileReviews(reviews);
 
+        const completedReviewers = pull.getCompletedReviewers();
+
+        if (action === 'push' && completedReviewers.length > 0) {
+
+            // resubmit review requests
+            await octokit.pulls.createReviewRequest({
+                owner: pull.owner,
+                repo: pull.repo,
+                issue_number: pull.pull_number,
+                reviewers: completedReviewers
+            });
+        }
+
         if (config.test_mode) {
 
             // comment in test mode

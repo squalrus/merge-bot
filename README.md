@@ -49,6 +49,7 @@ on:
   pull_request:
     types: [labeled, unlabeled, review_request_removed]
   pull_request_review:
+  push:
 
 jobs:
   merge:

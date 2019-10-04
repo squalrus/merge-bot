@@ -15,12 +15,12 @@ module.exports = {
             }
         ],
         "number": "20",
-        "requested_reviewers": [],
-        "user": {
-            "login": "squalrus"
-        }
+        "requested_reviewers": []
     },
     "repository":{
-        "name": "merge-bot"
+        "name": "merge-bot",
+        "owner": {
+            "login": "squalrus"
+        }
     }
 };

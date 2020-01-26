@@ -21,6 +21,9 @@ module.exports = {
         }
     },
     "repository":{
-        "name": "merge-bot"
+        "name": "merge-bot",
+        "owner": {
+            "login": "squalrus"
+        }
     }
 };

@@ -2,7 +2,7 @@
 
 This action manages pull request integrations by allowing a structured workflow to be defined.
 
-The workflow can use required labels, blocking labels, and require that reviewers sign-off.
+The workflow can use required labels, blocking labels, and require that reviewers sign-off for determining if a pull request should be integrated. By default the pull request will be blocked by incomplete/failing checks.
 
 Once conditions are met the pull request will be integrated and branch deleted.
 
@@ -34,6 +34,10 @@ One or more labels that block the integration. Default is `"do not merge"`.
 
 ![do not merge GitHub label](./assets/blocking-label.png)
 
+### `checks_enabled`
+
+All checks must be completed to be eligible to integrate. Default is `true`.
+
 ### `method`
 
 Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default is `merge`.
@@ -47,8 +51,16 @@ name: Merge Bot
 
 on:
   pull_request:
-    types: [labeled, unlabeled, review_request_removed]
+    types:
+      - labeled
+      - review_request_removed
+      - review_requested
+      - unlabeled
   pull_request_review:
+    types:
+      - dismissed
+      - submitted
+  status:
 
 jobs:
   merge:
@@ -63,5 +75,6 @@ jobs:
         reviewers: true
         labels: ready, merge
         blocking-labels: do not merge
+        checks: true
         method: squash
 ```

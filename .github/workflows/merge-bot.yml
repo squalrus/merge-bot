@@ -2,8 +2,16 @@ name: Merge Bot
 
 on:
   pull_request:
-    types: [labeled, unlabeled, review_request_removed]
+    types:
+      - labeled
+      - review_request_removed
+      - review_requested
+      - unlabeled
   pull_request_review:
+    types:
+      - dismissed
+      - submitted
+  status:
 
 jobs:
   merge:
@@ -11,7 +19,7 @@ jobs:
     name: Merge
     steps:
     - name: Integration check
-      uses: squalrus/merge-bot@v0.3.1
+      uses: squalrus/merge-bot@master
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         test: false

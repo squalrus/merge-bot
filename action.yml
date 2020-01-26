@@ -20,6 +20,10 @@ inputs:
     description: 'Reviewers required and reviewers must all approve'
     required: false
     default: true
+  checks_enabled:
+    description: 'All checks must be completed to be eligible to integrate'
+    required: false
+    default: true
   method:
     description: 'Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default is `merge`.'
     required: false

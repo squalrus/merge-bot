@@ -22,7 +22,14 @@ async function run() {
             pull_number: pull.pull_number
         });
 
+        const checks = await octokit.checks.listForRef({
+            owner: pull.owner,
+            repo: pull.repo,
+            ref: pull.ref
+        });
+
         pull.compileReviews(reviews);
+        pull.compileChecks(checks);
 
         if (config.test_mode) {
 

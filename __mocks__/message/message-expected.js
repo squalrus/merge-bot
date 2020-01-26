@@ -11,6 +11,7 @@ merge method: squash
 labels: [\"foo\",\"bar\",\"ready\"]
 requested reviewers: [\"squalrus\",\"timgrove\"]
 reviewers: []
+checks: {}
 
 #### result
 eligible for merge: false`;

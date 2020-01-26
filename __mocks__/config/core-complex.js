@@ -13,6 +13,9 @@ class CoreComplex {
             case 'reviewers':
                 return 'false';
 
+            case 'checks_enabled':
+                return 'true';
+
             case 'test':
                 return 'false';
 

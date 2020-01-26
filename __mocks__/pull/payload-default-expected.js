@@ -5,5 +5,6 @@ module.exports = {
     "reviews": [],
     "ref": "heads/master",
     "repo": "merge-bot",
-    "requested_reviewers": ["squalrus", "timgrove"]
+    "requested_reviewers": ["squalrus", "timgrove"],
+    "checks": {}
 };

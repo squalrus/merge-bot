@@ -13,6 +13,9 @@ class CoreDefault {
             case 'reviewers':
                 return 'true';
 
+            case 'checks_enabled':
+                return 'true';
+
             case 'test':
                 return 'true';
 

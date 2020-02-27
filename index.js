@@ -7,6 +7,8 @@ const renderMessage = require('./lib/message');
 
 async function run() {
     try {
+        console.log(`payload: ${JSON.stringify(github.context.payload)}`);
+
         const config = new Config(core);
         console.log(`config: ${JSON.stringify(config)}`);
 

@@ -7,6 +7,7 @@ const renderMessage = require('./lib/message');
 
 async function run() {
     try {
+        console.log(`action: ${github.context.payload.action}`);
         console.log(`payload: ${JSON.stringify(github.context.payload)}`);
 
         const config = new Config(core);
@@ -32,6 +33,8 @@ async function run() {
 
         pull.compileReviews(reviews);
         pull.compileChecks(checks);
+
+        console.log(`merge: ${pull.canMerge(config)}`);
 
         if (config.test_mode) {
 

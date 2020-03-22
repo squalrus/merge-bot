@@ -21,9 +21,9 @@ inputs:
     required: false
     default: true
   checks_enabled:
-    description: 'All checks must be completed to be eligible to integrate'
+    description: 'All checks must be completed to be eligible to integrate (except the current Action)'
     required: false
-    default: true
+    default: false
   method:
     description: 'Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default is `merge`.'
     required: false

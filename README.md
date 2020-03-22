@@ -36,7 +36,7 @@ One or more labels that block the integration. Default is `"do not merge"`.
 
 ### `checks_enabled`
 
-All checks must be completed to be eligible to integrate. Default is `true`.
+All checks must be completed to be eligible to integrate (this does not include the currently running Action). Note, if triggering multiple runs simultaneously (like adding two labels) this will not pass -- USE WITH CAUTION. Default is `false`.
 
 ### `method`
 
@@ -53,14 +53,15 @@ on:
   pull_request:
     types:
       - labeled
+      - ready_for_review
       - review_request_removed
       - review_requested
+      - synchronize
       - unlabeled
   pull_request_review:
     types:
       - dismissed
       - submitted
-  status:
 
 jobs:
   merge:

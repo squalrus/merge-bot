@@ -8,23 +8,25 @@ const renderMessage = require('./lib/message');
 async function run() {
     try {
         console.log(`action: ${github.context.payload.action}`);
-        console.log(`payload: ${JSON.stringify(github.context.payload)}`);
+        console.log(`[data] payload: ${JSON.stringify(github.context.payload)}`);
 
         const config = new Config(core);
-        console.log(`config: ${JSON.stringify(config)}`);
+        console.log(`[data] config: ${JSON.stringify(config)}`);
 
         const pull = new Pull(github.context.payload);
-        console.log(`pull: ${JSON.stringify(pull)}`);
+        console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
 
         const token = core.getInput('GITHUB_TOKEN');
         const octokit = new github.GitHub(token);
 
+        console.log(`[info] get reviews`);
         const reviews = await octokit.pulls.listReviews({
             owner: pull.owner,
             repo: pull.repo,
             pull_number: pull.pull_number
         });
 
+        console.log(`[info] get checks`);
         const checks = await octokit.checks.listForRef({
             owner: pull.owner,
             repo: pull.repo,
@@ -33,6 +35,7 @@ async function run() {
 
         pull.compileReviews(reviews);
         pull.compileChecks(checks);
+        console.log(`[data] pull (checks + reviews): ${JSON.stringify(pull)}`);
 
         console.log(`merge: ${pull.canMerge(config)}`);
 

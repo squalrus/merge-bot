@@ -1,8 +1,8 @@
 module.exports = {
     "blocking_labels": ["do not merge"],
     "labels": ["ready", "merge"],
-    "merge_method": "squash",
+    "merge_method": "merge",
     "review_required": true,
-    "checks_enabled": true,
-    "test_mode": true
+    "checks_enabled": false,
+    "test_mode": false
 };

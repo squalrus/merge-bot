@@ -28,7 +28,7 @@ One or more labels required for integration. Default is `"ready"`.
 
 ![merge and sign-off GitHub labels](./assets/labels.png)
 
-### `blocking-labels`
+### `blocking_labels`
 
 One or more labels that block the integration. Default is `"do not merge"`.
 
@@ -75,7 +75,7 @@ jobs:
         test: true
         reviewers: true
         labels: ready, merge
-        blocking-labels: do not merge
-        checks: true
+        blocking_labels: do not merge
+        checks_enabled: true
         method: squash
 ```

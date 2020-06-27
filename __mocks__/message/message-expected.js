@@ -13,7 +13,7 @@ module.exports = `### merge bot test mode
 <tr><td>required label(s)</td><td>[\"ready\",\"merge\"]</td></tr>
 <tr><td>blocking label(s)</td><td>[\"do not merge\"]</td></tr>
 <tr><td>reviewers required</td><td>true</td></tr>
-<tr><td>merge method</td><td>squash</td></tr>
+<tr><td>merge method</td><td>merge</td></tr>
 </table>
 
 #### pull request details

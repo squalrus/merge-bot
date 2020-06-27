@@ -1,23 +1,23 @@
 class CoreDefault {
     getInput(key) {
         switch (key) {
-            case 'blocking-labels':
+            case 'blocking_labels':
                 return 'do not merge';
 
             case 'labels':
                 return 'ready, merge';
 
             case 'method':
-                return 'squash';
+                return 'merge';
 
             case 'reviewers':
                 return 'true';
 
             case 'checks_enabled':
-                return 'true';
+                return 'false';
 
             case 'test':
-                return 'true';
+                return 'false';
 
             default:
                 break;

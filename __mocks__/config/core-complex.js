@@ -1,7 +1,7 @@
 class CoreComplex {
     getInput(key) {
         switch (key) {
-            case 'blocking-labels':
+            case 'blocking_labels':
                 return 'hold,  stop,no';
 
             case 'labels':

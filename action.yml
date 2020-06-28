@@ -12,7 +12,7 @@ inputs:
     description: 'Labels required for integration'
     required: true
     default: 'ready'
-  blocking-labels:
+  blocking_labels:
     description: 'Labels that block the integration'
     required: false
     default: 'do not merge'

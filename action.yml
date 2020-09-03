@@ -7,7 +7,7 @@ inputs:
   test:
     description: 'Runs in test mode and will comment rather than merge'
     required: false
-    default: false
+    default: 'false'
   labels:
     description: 'Labels required for integration'
     required: true
@@ -19,11 +19,11 @@ inputs:
   reviewers:
     description: 'Reviewers required and reviewers must all approve'
     required: false
-    default: true
+    default: 'true'
   checks_enabled:
     description: 'All checks must be completed to be eligible to integrate (except the current Action)'
     required: false
-    default: false
+    default: 'false'
   method:
     description: 'Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default is `merge`.'
     required: false

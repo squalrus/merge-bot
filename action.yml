@@ -28,6 +28,10 @@ inputs:
     description: 'Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default is `merge`.'
     required: false
     default: 'merge'
+  delete_source_branch:
+    description: If true, delete the source branch of the pull request after merging
+    required: false
+    default: 'true'
   GITHUB_TOKEN:
     description: 'Authorization Token for accessing GitHub'
     required: true

@@ -4,5 +4,6 @@ module.exports = {
     "merge_method": "squash",
     "review_required": false,
     "checks_enabled": true,
-    "test_mode": false
+    "test_mode": false,
+    "delete_source_branch": false
 };

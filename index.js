@@ -50,7 +50,7 @@ async function run() {
             if (pull.canMerge(config)) {
 
                 // merge the pull request
-                octokit.pulls.merge({
+                await octokit.pulls.merge({
                     owner: pull.owner,
                     repo: pull.repo,
                     pull_number: pull.pull_number,

@@ -42,6 +42,12 @@ All checks must be completed to be eligible to integrate (this does not include 
 
 Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default is `merge`.
 
+### `delete_source_branch`
+
+Delete the source branch of the pull request after merging. Set to `false` when "Automatically delete head branches" is enabled on your repo. Default is `true`.
+
+![Automatically delete head branches enabled](./assets/delete-branches.png)
+
 ## Example usage
 
 You can use PR Merge Bot by configuring a YAML-based workflow file, e.g. `.github/workflows/merge-bot.yml`.
@@ -78,4 +84,5 @@ jobs:
         blocking_labels: do not merge
         checks_enabled: true
         method: squash
+        delete_source_branch: true
 ```

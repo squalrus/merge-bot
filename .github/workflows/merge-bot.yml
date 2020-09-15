@@ -29,3 +29,4 @@ jobs:
         blocking_labels: do not merge
         checks_enabled: false
         method: squash
+        delete_source_branch: false

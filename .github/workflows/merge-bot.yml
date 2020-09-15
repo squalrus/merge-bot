@@ -20,7 +20,7 @@ jobs:
     name: Merge
     steps:
     - name: Integration check
-      uses: squalrus/merge-bot@master
+      uses: squalrus/merge-bot@fork-support
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         test: false

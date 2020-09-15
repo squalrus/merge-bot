@@ -57,12 +57,14 @@ async function run() {
                     merge_method: config.merge_method
                 });
 
-                // delete the branch
-                await octokit.git.deleteRef({
-                    owner: pull.owner,
-                    repo: pull.repo,
-                    ref: pull.ref
-                });
+                if (config.delete_source_branch) {
+                    // delete the branch
+                    await octokit.git.deleteRef({
+                        owner: pull.owner,
+                        repo: pull.repo,
+                        ref: pull.ref
+                    });
+                }
             }
         }
     } catch (error) {

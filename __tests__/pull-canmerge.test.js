@@ -179,3 +179,18 @@ test('do not merge when reviews not required, blocking labels match', () => {
 
     expect(pull.canMerge(config)).toBe(false);
 });
+
+test('merge when labels not required, reviews required', () => {
+    const pull = new Pull(payloadReviewers0);
+    pull.compileReviews(reviewsApproved);
+    pull.compileChecks(checks);
+
+    const config = {
+        "review_required": true,
+        "labels": [],
+        "blocking_labels": [],
+        "checks_enabled": true
+    };
+
+    expect(pull.canMerge(config)).toBe(true);
+});

@@ -8,20 +8,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/squalrus/github-actions.git"
+    "url": "git+https://github.com/squalrus/merge-bot.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/squalrus/github-actions/issues"
+    "url": "https://github.com/squalrus/merge-bot/issues"
   },
-  "homepage": "https://github.com/squalrus/github-actions#readme",
+  "homepage": "https://github.com/squalrus/merge-bot#readme",
   "dependencies": {
-    "@actions/core": "^1.1.1",
-    "@actions/github": "^1.1.0"
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0"
   },
   "devDependencies": {
-    "jest": "^24.9.0"
+    "jest": "^26.6.3"
   }
 }

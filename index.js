@@ -17,7 +17,7 @@ async function run() {
         console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
 
         const token = core.getInput('GITHUB_TOKEN');
-        const octokit = new github.GitHub(token);
+        const octokit = new github.getOctokit(token);
 
         console.log(`[info] get reviews`);
         const reviews = await octokit.pulls.listReviews({

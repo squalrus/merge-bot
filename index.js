@@ -53,20 +53,24 @@ async function run() {
             if (pull.canMerge(config)) {
 
                 // merge the pull request
+                console.log(`[info] merge start`);
                 await octokit.pulls.merge({
                     owner: pull.owner,
                     repo: pull.repo,
                     pull_number: pull.pull_number,
                     merge_method: config.merge_method
                 });
+                console.log(`[info] merge complete`);
 
                 if (config.delete_source_branch) {
                     // delete the branch
+                    console.log(`[info] delete start`);
                     await octokit.git.deleteRef({
                         owner: pull.owner,
                         repo: pull.repo,
                         ref: pull.ref
                     });
+                    console.log(`[info] delete complete`);
                 }
             }
         }

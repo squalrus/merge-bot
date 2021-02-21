@@ -63,14 +63,18 @@ async function run() {
                 console.log(`[info] merge complete`);
 
                 if (config.delete_source_branch) {
-                    // delete the branch
-                    console.log(`[info] delete start`);
-                    await octokit.git.deleteRef({
-                        owner: pull.owner,
-                        repo: pull.repo,
-                        ref: pull.ref
-                    });
-                    console.log(`[info] delete complete`);
+                    if (pull.headRepoId !== pull.baseRepoId) {
+                        console.log(`[warning] unable to delete branch from fork, branch retained`);
+                    } else {
+                        // delete the branch
+                        console.log(`[info] delete start`);
+                        await octokit.git.deleteRef({
+                            owner: pull.owner,
+                            repo: pull.repo,
+                            ref: pull.ref
+                        });
+                        console.log(`[info] delete complete`);
+                    }
                 }
             }
         }

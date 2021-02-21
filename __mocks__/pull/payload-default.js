@@ -1,8 +1,16 @@
 module.exports = {
     "pull_request": {
+        "base": {
+            "repo": {
+                "id": 123
+            }
+        },
         "head": {
             "ref": "master",
-            "sha": "1234724d27c4fae27b402212182b64fda77040b5"
+            "sha": "1234724d27c4fae27b402212182b64fda77040b5",
+            "repo": {
+                "id": 123
+            }
         },
         "labels": [
             {

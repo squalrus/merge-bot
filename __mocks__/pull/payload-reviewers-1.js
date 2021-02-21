@@ -1,7 +1,15 @@
 module.exports = {
     "pull_request": {
+        "base": {
+            "repo": {
+                "id": 123
+            }
+        },
         "head": {
-            "ref": "master"
+            "ref": "master",
+            "repo": {
+                "id": 123
+            }
         },
         "labels": [
             {

@@ -46,6 +46,8 @@ Merge method to use. Possible values are `merge`, `squash` or `rebase`. Default 
 
 Delete the source branch of the pull request after merging. Set to `false` when "Automatically delete head branches" is enabled on your repo. Default is `true`.
 
+_NOTE: if enabled, merge-bot is unable to delete a branch from a fork._
+
 ![Automatically delete head branches enabled](./assets/delete-branches.png)
 
 ## Example usage

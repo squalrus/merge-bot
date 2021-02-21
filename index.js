@@ -30,7 +30,7 @@ async function run() {
         const checks = await octokit.checks.listForRef({
             owner: pull.owner,
             repo: pull.repo,
-            ref: pull.ref
+            ref: pull.branch_name
         });
 
         pull.compileReviews(reviews);

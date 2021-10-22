@@ -54,12 +54,16 @@ async function run() {
 
                 // merge the pull request
                 console.log(`[info] merge start`);
-                await octokit.pulls.merge({
+                const changelogDetails = config.changelog ? {
+                    commit_title: pull.title,
+                    commit_message: pull.parseChangelog()
+                } : {}
+                await octokit.pulls.merge(Object.assign({}, {
                     owner: pull.owner,
                     repo: pull.repo,
                     pull_number: pull.pull_number,
                     merge_method: config.merge_method
-                });
+                }, changelogDetails));
                 console.log(`[info] merge complete`);
 
                 if (config.delete_source_branch) {

@@ -1,7 +1,6 @@
 module.exports = {
     "labels": ["foo", "bar", "ready"],
     "owner": "squalrus",
-    "creator": "squalrus",
     "pull_number": 20,
     "reviews": [],
     "branch_name": "master",
@@ -10,5 +9,6 @@ module.exports = {
     "requested_reviewers": ["squalrus", "timgrove"],
     "checks": {},
     "headRepoId": 123,
-    "baseRepoId": 123
+    "baseRepoId": 123,
+    "creator": "squalrus"
 };

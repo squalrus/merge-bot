@@ -1,6 +1,7 @@
 module.exports = {
     "labels": ["foo", "bar", "ready"],
     "owner": "squalrus",
+    "creator": "squalrus",
     "pull_number": 20,
     "reviews": [],
     "branch_name": "master",

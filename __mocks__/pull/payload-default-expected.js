@@ -9,5 +9,6 @@ module.exports = {
     "requested_reviewers": ["squalrus", "timgrove"],
     "checks": {},
     "headRepoId": 123,
-    "baseRepoId": 123
+    "baseRepoId": 123,
+    "creator": "squalrus"
 };

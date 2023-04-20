@@ -4,6 +4,9 @@ const github = require('@actions/github');
 const Config = require('./lib/config')
 const Pull = require('./lib/pull');
 const renderMessage = require('./lib/message');
+const getToken = require("./lib/token");
+
+
 
 async function run() {
     try {
@@ -16,7 +19,7 @@ async function run() {
         const pull = new Pull(github.context.payload);
         console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
 
-        const token = core.getInput('GITHUB_TOKEN');
+        const token = await getToken();
         const octokit = new github.getOctokit(token);
 
         console.log(`[info] get reviews`);

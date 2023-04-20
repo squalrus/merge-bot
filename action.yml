@@ -34,7 +34,19 @@ inputs:
     default: 'true'
   GITHUB_TOKEN:
     description: 'Authorization Token for accessing GitHub'
-    required: true
+    required: false
+  GITHUB_APP_ID:
+    description: 'App Id for GitHub App'
+    required: false
+  GITHUB_APP_PRIVATE_KEY:
+    description: 'App private key for GitHub App'
+    required: false
+  GITHUB_APP_CLIENT_ID:
+    description: 'App client id for GitHub App'
+    required: false
+  GITHUB_APP_CLIENT_SECRET:
+    description: 'App client secret for GitHub App'
+    required: false
 runs:
   using: 'node12'
   main: 'index.js'

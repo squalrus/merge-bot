@@ -19,14 +19,19 @@ jobs:
     runs-on: ubuntu-latest
     name: Merge
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
     - name: Integration check
-      uses: squalrus/merge-bot@master
+      uses: .
       with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        test: false
-        reviewers: false
-        labels: ready
+        GITHUB_APP_ID: 321564
+        GITHUB_APP_CLIENT_ID: v1.ea3ca8f1d74d0d6f
+        GITHUB_APP_PRIVATE_KEY: ${{ secrets.MERGE_PRIVATE_KEY }}
+        GITHUB_APP_CLIENT_SECRET: ${{ secrets.MERGE_CLIENT_SECRET }}
+        test: true
+        reviewers: true
+        labels: ready, merge
         blocking_labels: do not merge
-        checks_enabled: false
+        checks_enabled: true
         method: squash
-        delete_source_branch: false
+        delete_source_branch: true

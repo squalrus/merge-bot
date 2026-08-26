@@ -98,7 +98,15 @@ npm install
 npm test
 ```
 
-Tests live in `__tests__/` and use fixture payloads from `__mocks__/`. There's no build step — `index.js` and `lib/` run as plain Node.js under the runtime declared in [`action.yml`](action.yml).
+Tests live in `__tests__/` and use fixture payloads from `__mocks__/`.
+
+The action itself runs from a bundled `dist/index.js`, generated from `index.js` and `lib/` with [`@vercel/ncc`](https://github.com/vercel/ncc) — that's what [`action.yml`](action.yml) points at. After changing `index.js` or anything under `lib/`, rebuild and commit the result:
+
+```bash
+npm run build
+```
+
+A CI check ([`.github/workflows/build-check.yml`](.github/workflows/build-check.yml)) fails the PR if `dist/` is out of date with source.
 
 ## Contributing
 

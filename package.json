@@ -1,10 +1,11 @@
 {
   "name": "github-actions",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "ncc build index.js -o dist"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
     "@actions/github": "^4.0.0"
   },
   "devDependencies": {
+    "@vercel/ncc": "^0.38.4",
     "jest": "^26.6.3"
   }
 }

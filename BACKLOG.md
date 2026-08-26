@@ -27,7 +27,6 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 
 | Title | Effort | Value |
 |---|---|---|
-| [Replace committed node_modules with an ncc-bundled dist/](#replace-committed-node_modules-with-an-ncc-bundled-dist) | M | H |
 | [Consolidate CI onto a single GitHub Actions workflow](#consolidate-ci-onto-a-single-github-actions-workflow) | M | H |
 | [Reconcile package.json metadata with reality](#reconcile-packagejson-metadata-with-reality) | S | M |
 | [Upgrade jest to clear most npm audit findings](#upgrade-jest-to-clear-most-npm-audit-findings) | S | M |
@@ -60,17 +59,6 @@ No open limitations.
 **Type:** Known issue
 **Why** — 7 PRs are open, ranging from 2019 (your own, now conflicting) to 2023 (dependabot). Several dependabot bumps are individually superseded by a single dependency-upgrade pass, and one real community feature contribution (#72) has never been reviewed.
 **Notes:** Close #68, #69, #70, #71, #73, #74, #75 in favor of one consolidated `jest`/`@actions/*` upgrade PR (see [Upgrade jest](#upgrade-jest-to-clear-most-npm-audit-findings) and [Upgrade @actions/core and @actions/github](#upgrade-actionscore-and-actionsgithub-deliberately)). Review #72 ("make the action work with pull request comment event") on its merits. Decide whether to rebase or close #12 ("Resubmit reviews after push"), which is your own branch and currently conflicting with `master`.
-
-### Replace committed node_modules with an ncc-bundled dist/
-**Type:** Improvement
-**Why** — `node_modules/` (6,630 files) is committed with no `.gitignore` anywhere in the repo. This bloats every clone, produces noisy diffs, and means a checked-in vulnerable dependency doesn't get cleared just by bumping `package.json`. GitHub Actions still requires a JS action's dependencies to be present at runtime (there's no `npm install` step before `runs.main` executes) — committing raw `node_modules` isn't wrong per se, it's just the outdated way of satisfying that requirement.
-**Notes:** The current standard practice (used by `actions/toolkit` and most maintained JS actions) is to bundle with [`@vercel/ncc`](https://github.com/vercel/ncc) into a single generated `dist/index.js` and commit only that, instead of raw `node_modules`. This is a strictly better fix than just adding a `.gitignore`:
-
-- Only `dependencies` get bundled, never `devDependencies` — so `jest`/`babel`/etc. (the source of most `npm audit` findings) never ship at all, not just "aren't committed."
-- One generated file instead of 6,630 tracked files.
-- Forces `action.yml`'s `main:` to point at `dist/index.js` instead of `index.js`.
-
-Implementation: add `@vercel/ncc` as a dev dependency, add an `npm run build` script (`ncc build index.js -o dist`), update `action.yml`'s `main`, remove `node_modules/` from git (`git rm -r --cached node_modules`, add a `.gitignore`), commit `dist/`. Add a CI check that fails if `dist/` is stale relative to source (rebuild and diff) so it can't silently drift the way `package.json`'s version did. Pair with the [`@actions/core`/`@actions/github` upgrade](#upgrade-actionscore-and-actionsgithub-deliberately) since both touch `action.yml` and the build/execution path — worth doing as one coordinated PR rather than two separate ones. (The `runs.using` runtime itself was already fixed to `node20` on 2026-08-26.)
 
 ### Reconcile package.json metadata with reality
 **Type:** Improvement

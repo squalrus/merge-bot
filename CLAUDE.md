@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## What this is
 
-`merge-bot` is a GitHub Action (published as `squalrus/merge-bot`) that auto-merges pull requests once configured conditions are met (required labels, absence of blocking labels, reviewer sign-off, checks passing), then optionally deletes the source branch. It's a small, self-contained Node.js action — no framework, no build step.
+`merge-bot` is a GitHub Action (published as `squalrus/merge-bot`) that auto-merges pull requests once configured conditions are met (required labels, absence of blocking labels, reviewer sign-off, checks passing), then optionally deletes the source branch. It's a small, self-contained Node.js action — no framework, minimal build step (an `ncc` bundle, see below).
 
 ## Architecture
 
@@ -18,7 +18,7 @@ Guidance for Claude Code when working in this repository.
 
 - Run `npm test` after any change to `lib/` or `index.js` — the suite is fast (~40s) and should stay green.
 - If you touch an action input, update `action.yml`, `lib/config.js`, and the README's Inputs section together — they're expected to match exactly and nothing enforces that automatically.
-- `node_modules/` is currently committed to git (no `.gitignore` exists). Don't be alarmed by its size in `git status`/`git diff` output — it's tracked, not accidentally staged. The eventual fix is bundling with `@vercel/ncc` into a `dist/index.js` (tracked in [BACKLOG.md](BACKLOG.md)), not just adding a `.gitignore` — don't do either incidentally while working on something else.
+- The action runs from `dist/index.js`, a single file bundled from `index.js` + `lib/` with `@vercel/ncc` (`npm run build`) — that's what `action.yml`'s `runs.main` points at, not `index.js` directly. After any change to `index.js` or `lib/`, rebuild and commit `dist/index.js`; [`.github/workflows/build-check.yml`](.github/workflows/build-check.yml) fails the PR if it's stale. `node_modules/` is gitignored and not committed — only `dist/` is.
 - There's no linter/formatter configured. Match existing style (4-space indent, semicolons).
 
 ## Known constraints — read before proposing dependency/runtime upgrades

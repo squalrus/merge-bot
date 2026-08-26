@@ -28,11 +28,11 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 | Title | Effort | Value |
 |---|---|---|
 | [Replace committed node_modules with an ncc-bundled dist/](#replace-committed-node_modules-with-an-ncc-bundled-dist) | M | H |
+| [Consolidate CI onto a single GitHub Actions workflow](#consolidate-ci-onto-a-single-github-actions-workflow) | M | H |
 | [Reconcile package.json metadata with reality](#reconcile-packagejson-metadata-with-reality) | S | M |
 | [Upgrade jest to clear most npm audit findings](#upgrade-jest-to-clear-most-npm-audit-findings) | S | M |
 | [Add dependabot.yml for scheduled dependency updates](#add-dependabotyml-for-scheduled-dependency-updates) | S | M |
 | [Upgrade @actions/core and @actions/github deliberately](#upgrade-actionscore-and-actionsgithub-deliberately) | M | M |
-| [Consolidate CI onto a single GitHub Actions workflow](#consolidate-ci-onto-a-single-github-actions-workflow) | M | M |
 | [Prune stale origin branches](#prune-stale-origin-branches) | S | L |
 | [Rename default branch from master to main](#rename-default-branch-from-master-to-main) | M | L |
 | [Tidy issue templates for a GitHub Action](#tidy-issue-templates-for-a-github-action) | S | L |
@@ -41,7 +41,6 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 
 | Title | Effort | Value |
 |---|---|---|
-| [Upgrade action.yml runtime off node12](#upgrade-actionyml-runtime-off-node12) | S | H |
 | [Triage the 7 open pull requests](#triage-the-7-open-pull-requests) | S | M |
 
 ### Limitations
@@ -57,11 +56,6 @@ No open limitations.
 **Why** — Consumers currently either pin an exact tag (`@v0.4.5`) or float on `@master`. A moving major tag (e.g. `v0`) lets them pin `squalrus/merge-bot@v0` and pick up patch/minor releases automatically without tracking every release — the common convention for GitHub Actions (see `actions/checkout@v4`, etc.).
 **Notes:** On release, after `npm version` creates the exact tag, force-move the major tag to point at the new commit and push it: `git tag -f v0 <new-tag> && git push origin v0 --force`. Add this as a step in [CONTRIBUTING.md](CONTRIBUTING.md)'s release process, ideally automated in a release workflow rather than manual. Consider updating the README's example usage to recommend pinning the major tag instead of an exact version once this exists.
 
-### Upgrade action.yml runtime off node12
-**Type:** Known issue
-**Why** — `action.yml` declares `runs.using: node12`, a runtime GitHub Actions has removed (supported runtimes are now `node20`/`node24`). Consumers running this action on current runners are at risk of it failing outright. Top-priority item from [AUDIT.md](AUDIT.md).
-**Notes:** Change `runs.using` to `node20`. Verify `index.js` and dependencies (`@actions/core`, `@actions/github`) still work under the newer runtime before tagging a release. Treat as its own deliberate PR — don't bundle with unrelated changes.
-
 ### Triage the 7 open pull requests
 **Type:** Known issue
 **Why** — 7 PRs are open, ranging from 2019 (your own, now conflicting) to 2023 (dependabot). Several dependabot bumps are individually superseded by a single dependency-upgrade pass, and one real community feature contribution (#72) has never been reviewed.
@@ -76,7 +70,7 @@ No open limitations.
 - One generated file instead of 6,630 tracked files.
 - Forces `action.yml`'s `main:` to point at `dist/index.js` instead of `index.js`.
 
-Implementation: add `@vercel/ncc` as a dev dependency, add an `npm run build` script (`ncc build index.js -o dist`), update `action.yml`'s `main`, remove `node_modules/` from git (`git rm -r --cached node_modules`, add a `.gitignore`), commit `dist/`. Add a CI check that fails if `dist/` is stale relative to source (rebuild and diff) so it can't silently drift the way `package.json`'s version did. Pair with the [node12 runtime fix](#upgrade-actionyml-runtime-off-node12) and the [`@actions/core`/`@actions/github` upgrade](#upgrade-actionscore-and-actionsgithub-deliberately) since all three touch `action.yml` and the build/execution path — worth doing as one coordinated PR rather than three separate ones.
+Implementation: add `@vercel/ncc` as a dev dependency, add an `npm run build` script (`ncc build index.js -o dist`), update `action.yml`'s `main`, remove `node_modules/` from git (`git rm -r --cached node_modules`, add a `.gitignore`), commit `dist/`. Add a CI check that fails if `dist/` is stale relative to source (rebuild and diff) so it can't silently drift the way `package.json`'s version did. Pair with the [`@actions/core`/`@actions/github` upgrade](#upgrade-actionscore-and-actionsgithub-deliberately) since both touch `action.yml` and the build/execution path — worth doing as one coordinated PR rather than two separate ones. (The `runs.using` runtime itself was already fixed to `node20` on 2026-08-26.)
 
 ### Reconcile package.json metadata with reality
 **Type:** Improvement
@@ -96,12 +90,12 @@ Implementation: add `@vercel/ncc` as a dev dependency, add an `npm run build` sc
 ### Upgrade @actions/core and @actions/github deliberately
 **Type:** Improvement
 **Why** — `@actions/core` is 2 majors behind (1.2.6 → 3.0.1, includes a moderate CVE fix); `@actions/github` is 5 majors behind (4.0.0 → 9.1.1).
-**Notes:** Not a drop-in bump — `index.js` currently calls REST methods directly on the octokit client (`octokit.pulls.listReviews`, `octokit.checks.listForRef`) rather than under `.rest.*`, which is the v4-era shape. Upgrading requires updating those call sites and re-running the full test suite. Pair with the [node12 runtime fix](#upgrade-actionyml-runtime-off-node12) since both touch the action's core execution path.
+**Notes:** Not a drop-in bump — `index.js` currently calls REST methods directly on the octokit client (`octokit.pulls.listReviews`, `octokit.checks.listForRef`) rather than under `.rest.*`, which is the v4-era shape. Upgrading requires updating those call sites and re-running the full test suite.
 
 ### Consolidate CI onto a single GitHub Actions workflow
 **Type:** Improvement
-**Why** — Tests currently only run via `azure-pipelines.yml`, pinned to Node 10.x (EOL 2021), and it's unclear if that pipeline is still connected to an active Azure DevOps project. The GitHub Actions workflow in this repo (`merge-bot.yml`) only runs the action itself, not `npm test`.
-**Notes:** Add `.github/workflows/test.yml` running `npm test` on PRs to `master`, matrixed against the Node versions the action's declared runtime actually supports. Retire `azure-pipelines.yml` or confirm and document that it's still needed. Add a status badge to the README either way.
+**Why** — Tests currently only run via `azure-pipelines.yml`, pinned to Node 10.x (EOL 2021). This is no longer just a staleness concern — the pipeline is **actively broken as of 2026-08-26**: its `npm install -g jest --save-dev` step installs the latest Jest (30.x, not the project's pinned `26.6.3`), whose `jest-resolve` now depends on `unrs-resolver`, a native module. `unrs-resolver`'s postinstall script fails outright under Node 10.x, so every pipeline run currently errors with `ELIFECYCLE` / "Failed at the unrs-resolver@1.12.2 postinstall script." The GitHub Actions workflow in this repo (`merge-bot.yml`) only runs the action itself, not `npm test`, so there is currently no working CI test signal on PRs at all.
+**Notes:** Add `.github/workflows/test.yml` running `npm test` on PRs to `master` (or `main`, if [the branch rename](#rename-default-branch-from-master-to-main) lands first), on a current Node LTS. Retire `azure-pipelines.yml` — no need to fix it first; the `npm install -g jest` line is redundant regardless (`npm run test` already resolves the project's own pinned `jest` from `node_modules` without a global install) and the underlying Node 10.x pin needs replacing either way. Add a status badge to the README once the new workflow exists.
 
 ### Prune stale origin branches
 **Type:** Improvement

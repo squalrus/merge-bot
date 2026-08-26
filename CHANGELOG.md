@@ -2,6 +2,14 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.7] — 2026-08-26
+
+### Fixed
+- **Action runtime.** `action.yml`'s `runs.using` was `node12`, a runtime GitHub Actions has removed — any consumer on a current runner risked the action failing outright. Changed to `node20`; full test suite (39/39) re-verified passing under Node 22 against the existing `@actions/core`/`@actions/github` v4 call shape. (`action.yml`)
+
+### Changed
+- **Audit and backlog docs.** `AUDIT.md` and `BACKLOG.md` updated to reflect the runtime fix above (no longer listed as the top critical item / open known issue) and to record that `azure-pipelines.yml` is confirmed actively broken under Node 10.x due to a transitive native-module dependency in Jest 30. (`AUDIT.md`, `BACKLOG.md`)
+
 ## [0.4.6] — 2026-08-26
 
 ### Added

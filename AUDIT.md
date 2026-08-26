@@ -6,12 +6,12 @@ This document is a point-in-time health check of the `merge-bot` repository: wha
 
 ## Summary
 
-The action works and its test suite passes, but the project has had no code changes since **2021-04-24** (5+ years) while still being actively consumed (it merges its own PRs via `.github/workflows/merge-bot.yml`). The most urgent issue is that the GitHub Actions runtime it declares (`node12`) has been removed by GitHub, which risks the action failing outright for any consumer on current runners.
+The action works and its test suite passes, but the project has had no code changes since **2021-04-24** (5+ years) while still being actively consumed (it merges its own PRs via `.github/workflows/merge-bot.yml`). The most urgent issue — the GitHub Actions runtime it declared (`node12`) having been removed by GitHub — was fixed 2026-08-26.
 
 | Area | Status |
 |---|---|
 | Tests | ✅ Passing (39/39) |
-| Action runtime | 🔴 Critical — declares a removed Node runtime |
+| Action runtime | ✅ Fixed — now declares `node20` |
 | Dependencies | 🟠 Multiple majors behind, security advisories open |
 | CI/CD | 🟠 Split across two unmonitored systems, one on EOL Node |
 | Open PRs | 🟠 7 open, oldest from 2019 |
@@ -20,7 +20,7 @@ The action works and its test suite passes, but the project has had no code chan
 
 ## Critical items
 
-1. **`action.yml` declares `runs.using: node12`.** GitHub Actions removed the Node 12 and Node 16 runtimes; supported runtimes are `node20`/`node24`. Any consumer running this action on a current runner is at risk of failure. This is the single highest-priority fix. ([action.yml](action.yml))
+1. ~~`action.yml` declares `runs.using: node12`~~ — **fixed 2026-08-26**: GitHub Actions had removed the Node 12 and Node 16 runtimes (supported runtimes are `node20`/`node24`). `action.yml` now declares `node20`; the existing test suite (39/39) was re-run and passes under Node 22, exercising the same `@actions/core`/`@actions/github` call paths. ([action.yml](action.yml))
 2. **`node_modules/` is committed to git** (6,630 tracked files) and there is no `.gitignore`. This bloats every clone/checkout, causes noisy diffs, and is the kind of thing that quietly reintroduces vulnerable code even after `package.json` is bumped, since the checked-in `node_modules` won't update itself. GitHub Actions still requires a JS action's dependencies to be present at runtime (there's no install step before `runs.main` executes), but committing raw `node_modules` is the outdated way of doing that — the current standard is to bundle with `@vercel/ncc` into a single `dist/index.js` containing only production dependencies, never `devDependencies`. See the backlog item for detail.
 3. **`package.json` metadata is inconsistent with reality**:
    - `license: "ISC"` in `package.json` vs. the actual `LICENSE` file, which is MIT.
@@ -45,7 +45,7 @@ No `.github/dependabot.yml` exists in the repo, yet Dependabot has opened PRs (#
 
 Two separate, disconnected systems exist:
 
-- **`azure-pipelines.yml`** — runs `npm install && npm test` on `pool: ubuntu-latest`, pinned to **Node 10.x** (EOL April 2021). Triggers on PRs to `master`. It's unclear whether this pipeline is still connected to an active Azure DevOps project; there's no badge or reference to it from the README.
+- **`azure-pipelines.yml`** — runs `npm install -g jest --save-dev && npm install && npm test` on `pool: ubuntu-latest`, pinned to **Node 10.x** (EOL April 2021). Triggers on PRs to `master`. **Confirmed active and currently broken (2026-08-26):** the global `jest` install pulls latest Jest (30.x), whose `jest-resolve` now depends on `unrs-resolver`, a native module whose postinstall fails under Node 10.x — every run currently errors before tests even execute. There is no badge or reference to it from the README. See the backlog item for the fix.
 - **`.github/workflows/merge-bot.yml`** — this is the action *using itself* (`uses: squalrus/merge-bot@master`) to manage this repo's own PRs. It runs with `reviewers: false` and `checks_enabled: false`, meaning label alone (`ready`) is sufficient to auto-merge and delete branches on this repo. There is no separate GitHub Actions workflow that runs `npm test` on PRs — test execution depends entirely on the Azure pipeline being healthy.
 
 **Recommendation:** consolidate onto a single GitHub Actions test workflow (`.github/workflows/test.yml`) matrixed across the Node versions actually supported by the declared `runs.using` value, and either retire `azure-pipelines.yml` or confirm it's still wired up. Add a status badge to the README either way.
@@ -85,7 +85,7 @@ Two separate, disconnected systems exist:
 
 ## Suggested triage order
 
-1. Fix `action.yml` runtime (`node12` → `node20`), since this may already be silently broken for consumers.
+1. ~~Fix `action.yml` runtime (`node12` → `node20`)~~ — done 2026-08-26.
 2. Reconcile remaining `package.json` fields (name, license) with reality — version is now fixed and guarded.
 3. Replace committed `node_modules` with an `ncc`-bundled `dist/` and a `.gitignore`.
 4. Consolidate CI onto one GitHub Actions workflow; decide the fate of `azure-pipelines.yml`.

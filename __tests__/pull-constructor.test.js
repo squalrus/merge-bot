@@ -1,16 +1,16 @@
-const Pull = require('../lib/pull');
+import Pull from '../lib/pull.js';
 
-const payloadDefault = require('../__mocks__/pull/payload-default');
-const payloadDefaultExpected = require('../__mocks__/pull/payload-default-expected');
+import payloadDefault from '../__mocks__/pull/payload-default.js';
+import payloadDefaultExpected from '../__mocks__/pull/payload-default-expected.js';
 
-const payloadFork = require('../__mocks__/pull/payload-fork');
-const payloadForkExpected = require('../__mocks__/pull/payload-fork-expected');
+import payloadFork from '../__mocks__/pull/payload-fork.js';
+import payloadForkExpected from '../__mocks__/pull/payload-fork-expected.js';
 
-const payloadPullRequest = require('../__mocks__/pull_request/payload');
-const payloadPullRequestExpected = require('../__mocks__/pull/payload-pull_request-expected');
+import payloadPullRequest from '../__mocks__/pull_request/payload.js';
+import payloadPullRequestExpected from '../__mocks__/pull/payload-pull_request-expected.js';
 
-const payloadPullRequestReview = require('../__mocks__/pull_request_review/payload');
-const payloadPullRequestReviewExpected = require('../__mocks__/pull/payload-pull_request_review-expected');
+import payloadPullRequestReview from '../__mocks__/pull_request_review/payload.js';
+import payloadPullRequestReviewExpected from '../__mocks__/pull/payload-pull_request_review-expected.js';
 
 test('pull constructor, default settings', () => {
     const pull = new Pull(payloadDefault);

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "labels": [],
     "owner": "squalrus",
     "pull_number": 36,

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "pull_request": {
         "base": {
             "repo": {

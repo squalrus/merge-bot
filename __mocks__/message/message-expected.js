@@ -1,4 +1,4 @@
-module.exports = `### merge bot test mode
+export default `### merge bot test mode
 
 #### overview
 

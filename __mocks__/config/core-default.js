@@ -25,4 +25,4 @@ class CoreDefault {
     }
 }
 
-module.exports = CoreDefault;
+export default CoreDefault;

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "action": "synchronize",
     "after": "05ca724d27c4fae27b402212182b64fda77040b5",
     "before": "3d3f9a174912faee30727460c94c9f0e0abd6c91",

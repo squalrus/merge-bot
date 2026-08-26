@@ -28,4 +28,4 @@ class CoreComplex {
     }
 }
 
-module.exports = CoreComplex;
+export default CoreComplex;

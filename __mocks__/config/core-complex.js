@@ -17,7 +17,10 @@ class CoreComplex {
                 return 'true';
 
             case 'test':
-                return 'false';
+                return 'true';
+
+            case 'delete_source_branch':
+                return 'true';
 
             default:
                 break;

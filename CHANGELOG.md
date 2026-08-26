@@ -2,6 +2,20 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.9] — 2026-08-26
+
+### Added
+- **Test coverage for `index.js`.** The action's entry point — reading the payload, fetching reviews/checks, choosing between commenting (test mode), merging, and deleting the source branch, including the fork-retains-branch and API-failure paths — had zero test coverage before this. `__tests__/index.test.js` now exercises it by mocking `@actions/core`/`@actions/github`, bringing overall coverage (statements/branches/functions/lines) to 100% across `index.js` and `lib/`. (`__tests__/index.test.js`)
+- **Coverage output ignored.** `npm test -- --coverage` writes a `coverage/` directory; added to `.gitignore` so it can't get committed by accident. (`.gitignore`)
+
+### Changed
+- **`AUDIT.md` refreshed.** Test counts and coverage status updated to reflect the above; `npm audit`'s vulnerability count re-checked and corrected (54, not 56 — normal drift in upstream advisories, not a regression). (`AUDIT.md`)
+
+### Fixed
+- **Untested branches in `lib/`.** `Pull.compileReviews`'s out-of-order-resubmission guard (an older review arriving after a newer one for the same user), `Pull.compileChecks`'s missing-payload guard, and `renderMessage`'s "mergeable" (✅) case were exercised by the existing suite only for their default outcome, leaving the other branch dark. Added targeted tests and fixtures (`__mocks__/pull/reviews-out-of-order*.js`, `__mocks__/message/message-expected-mergeable.js`) for each. (`__tests__/pull-data.test.js`, `__tests__/message.test.js`)
+- **`Config`'s `test`/`delete_source_branch` boolean mapping was never asserted `true`.** Every existing fixture passed `'false'` (or omitted the input) for these two flags, so the `getInput(...) === 'true'` mapping only had ever been checked in one direction. `__mocks__/config/core-complex.js` (and its expected output) now also flips these two. (`__mocks__/config/core-complex.js`, `__mocks__/config/config-complex.js`)
+- **Stale `package-lock.json` version.** Drifted to `0.4.7` while `package.json` had already moved to `0.4.8`; re-synced.
+
 ## [0.4.8] — 2026-08-26
 
 ### Added

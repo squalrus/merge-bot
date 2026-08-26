@@ -1,5 +1,7 @@
 # PR Merge Bot
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
 This action manages pull request integrations by allowing a structured workflow to be defined.
 
 The workflow can use required labels, blocking labels, and require that reviewers sign-off for determining if a pull request should be integrated. By default the pull request will be blocked by incomplete/failing checks.
@@ -88,3 +90,24 @@ jobs:
         method: squash
         delete_source_branch: true
 ```
+
+## Development
+
+```bash
+npm install
+npm test
+```
+
+Tests live in `__tests__/` and use fixture payloads from `__mocks__/`. There's no build step — `index.js` and `lib/` run as plain Node.js under the runtime declared in [`action.yml`](action.yml).
+
+## Contributing
+
+Bug reports, feature requests, and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, and [CLAUDE.md](CLAUDE.md) if you're working in this repo with Claude Code.
+
+## Project status
+
+This repo currently has open items around its GitHub Actions runtime version, dependency freshness, and open PR triage — see [AUDIT.md](AUDIT.md) for a full health check and [BACKLOG.md](BACKLOG.md) for tracked follow-up work.
+
+## License
+
+[MIT](LICENSE)

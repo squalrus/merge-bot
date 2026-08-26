@@ -23,9 +23,7 @@ The action works and its test suite passes, but the project has had no code chan
 
 1. ~~`action.yml` declares `runs.using: node12`~~ — **fixed 2026-08-26**: GitHub Actions had removed the Node 12 and Node 16 runtimes (supported runtimes are `node20`/`node24`). `action.yml` now declares `node20`; the existing test suite (39/39) was re-run and passes under Node 22, exercising the same `@actions/core`/`@actions/github` call paths. ([action.yml](action.yml))
 2. ~~`node_modules/` is committed to git~~ — **fixed 2026-08-26** ([v0.4.8](https://github.com/squalrus/merge-bot/pull/81)): the 6,630 tracked `node_modules/` files were removed in favor of a single `@vercel/ncc`-bundled `dist/index.js`, built from `index.js`/`lib/` via `npm run build`. `action.yml`'s `runs.main` now points at `dist/index.js`, a `.gitignore` was added, and [`.github/workflows/build-check.yml`](.github/workflows/build-check.yml) fails any PR where `dist/` doesn't match a fresh build, so it can't silently drift the way `package.json`'s version once did. Only production `dependencies` get bundled — `jest`/Babel/etc. (the source of most `npm audit` findings, see below) never ship in the action at all now, not just "aren't committed."
-3. **`package.json` metadata is inconsistent with reality**:
-   - `license: "ISC"` in `package.json` vs. the actual `LICENSE` file, which is MIT.
-   - `name: "github-actions"` — a placeholder, not `merge-bot`.
+3. ~~**`package.json` metadata is inconsistent with reality**~~ — **fixed 2026-08-26**: `license` was `"ISC"` vs. the actual MIT `LICENSE` file; `name` was the placeholder `"github-actions"`, not `merge-bot`. Both now read correctly.
    - ~~`version: "0.2.1"` vs. latest tag `v0.4.5`~~ — **fixed 2026-08-26**: `package.json` now reads `0.4.5`, the README example pins `@v0.4.5`, and [`.github/workflows/version-check.yml`](.github/workflows/version-check.yml) fails any future tag push whose version doesn't match `package.json`, so this can't silently drift again. Release with `npm version` (see [CONTRIBUTING.md](CONTRIBUTING.md)), not a manual edit + tag.
 
 ## Dependency / upgrade status
@@ -102,12 +100,12 @@ Checked each against the current code (`lib/pull.js`, `lib/config.js`, `index.js
 - Core logic (`lib/pull.js`, `lib/config.js`, `lib/message.js`) and the `index.js` entry point are small, readable, and fully covered by tests (100% statement/branch coverage as of v0.4.9).
 - The "dogfooding" setup — using the action to merge its own PRs — is a nice validation loop when it's kept healthy.
 - README input/output documentation is accurate and matches `action.yml` exactly.
-- MIT license is clear and unambiguous (once `package.json` is corrected to match).
+- MIT license is clear and unambiguous, and `package.json` now correctly reflects it.
 
 ## Suggested triage order
 
 1. ~~Fix `action.yml` runtime (`node12` → `node20`)~~ — done 2026-08-26.
-2. Reconcile remaining `package.json` fields (name, license) with reality — version is now fixed and guarded.
+2. ~~Reconcile remaining `package.json` fields (name, license) with reality~~ — done 2026-08-26; version was already fixed and guarded.
 3. ~~Replace committed `node_modules` with an `ncc`-bundled `dist/` and a `.gitignore`~~ — done 2026-08-26 ([v0.4.8](https://github.com/squalrus/merge-bot/pull/81)).
 4. Consolidate CI onto one GitHub Actions workflow (`npm test`, not just the new build-check); decide the fate of `azure-pipelines.yml`.
 5. Upgrade `jest` to clear the bulk of `npm audit` findings; upgrade `@actions/core`/`@actions/github` deliberately (breaking API shape change).

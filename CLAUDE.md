@@ -25,7 +25,6 @@ Guidance for Claude Code when working in this repository.
 
 - `action.yml` declares `runs.using: node12`, a runtime GitHub Actions has since removed. This is a known critical issue (see [AUDIT.md](AUDIT.md)) — don't "fix" it as a side effect of an unrelated change; treat it as its own deliberate PR since it may have downstream effects on how the action is invoked.
 - `@actions/github` is pinned at v4, and `index.js` calls REST methods directly on the octokit client (`octokit.pulls.listReviews`, `octokit.checks.listForRef`, etc.) rather than under `.rest.*`. Upgrading past v4 changes this call shape — it is a breaking-change upgrade, not a version bump.
-- `package.json`'s `name` and `license` fields still don't match the repo's actual name (`merge-bot`) or LICENSE file (MIT). This is tracked, not something to silently "correct" mid-way through unrelated work — call it out if you notice it's still wrong. (`version` is no longer part of this problem: it's kept in sync with git tags via `npm version` and enforced by [`.github/workflows/version-check.yml`](.github/workflows/version-check.yml) — never hand-edit it.)
 
 ## Where things are tracked
 

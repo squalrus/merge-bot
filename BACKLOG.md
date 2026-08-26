@@ -28,7 +28,6 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 | Title | Effort | Value |
 |---|---|---|
 | [Consolidate CI onto a single GitHub Actions workflow](#consolidate-ci-onto-a-single-github-actions-workflow) | M | H |
-| [Reconcile package.json metadata with reality](#reconcile-packagejson-metadata-with-reality) | S | M |
 | [Upgrade jest to clear most npm audit findings](#upgrade-jest-to-clear-most-npm-audit-findings) | S | M |
 | [Add dependabot.yml for scheduled dependency updates](#add-dependabotyml-for-scheduled-dependency-updates) | S | M |
 | [Upgrade @actions/core and @actions/github deliberately](#upgrade-actionscore-and-actionsgithub-deliberately) | M | M |
@@ -59,11 +58,6 @@ No open limitations.
 **Type:** Known issue
 **Why** — 7 PRs are open, ranging from 2019 (your own, now conflicting) to 2023 (dependabot). Several dependabot bumps are individually superseded by a single dependency-upgrade pass, and one real community feature contribution (#72) has never been reviewed.
 **Notes:** Close #68, #69, #70, #71, #73, #74, #75 in favor of one consolidated `jest`/`@actions/*` upgrade PR (see [Upgrade jest](#upgrade-jest-to-clear-most-npm-audit-findings) and [Upgrade @actions/core and @actions/github](#upgrade-actionscore-and-actionsgithub-deliberately)). Review #72 ("make the action work with pull request comment event") on its merits. Decide whether to rebase or close #12 ("Resubmit reviews after push"), which is your own branch and currently conflicting with `master`.
-
-### Reconcile package.json metadata with reality
-**Type:** Improvement
-**Why** — `package.json` still says `name: "github-actions"` (placeholder) and `license: "ISC"` (actual LICENSE file is MIT). Misleading to anyone inspecting the package. (The `version` field was fixed 2026-08-26 — it now tracks the latest tag and is guarded by [`.github/workflows/version-check.yml`](.github/workflows/version-check.yml); see [CONTRIBUTING.md](CONTRIBUTING.md)'s `npm version` release step.)
-**Notes:** Set `name` to `merge-bot` and `license` to `MIT`.
 
 ### Upgrade jest to clear most npm audit findings
 **Type:** Improvement

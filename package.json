@@ -1,10 +1,16 @@
 {
-  "name": "github-actions",
-  "version": "0.2.1",
+  "name": "merge-bot",
+  "version": "0.4.17",
   "description": "",
   "main": "index.js",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
-    "test": "jest"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "build": "ncc build index.js -o dist",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -12,16 +18,20 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/squalrus/merge-bot/issues"
   },
   "homepage": "https://github.com/squalrus/merge-bot#readme",
   "dependencies": {
-    "@actions/core": "^1.2.6",
-    "@actions/github": "^4.0.0"
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1"
   },
   "devDependencies": {
-    "jest": "^26.6.3"
+    "@eslint/js": "^9.9.0",
+    "@vercel/ncc": "^0.45.0",
+    "eslint": "^9.39.5",
+    "globals": "^15.9.0",
+    "jest": "^30.4.2"
   }
 }

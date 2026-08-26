@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "data": {
         "total_count": 7,
         "check_runs": [

@@ -1,13 +1,13 @@
-const Pull = require('../lib/pull');
+import Pull from '../lib/pull.js';
 
-const payloadDefault = require('../__mocks__/pull/payload-default');
-const payloadReviewers0 = require('../__mocks__/pull/payload-reviewers-0');
-const payloadReviewers1 = require('../__mocks__/pull/payload-reviewers-1');
-const payloadReviewers2 = require('../__mocks__/pull/payload-reviewers-2');
+import payloadDefault from '../__mocks__/pull/payload-default.js';
+import payloadReviewers0 from '../__mocks__/pull/payload-reviewers-0.js';
+import payloadReviewers1 from '../__mocks__/pull/payload-reviewers-1.js';
+import payloadReviewers2 from '../__mocks__/pull/payload-reviewers-2.js';
 
-const reviewsNone = require('../__mocks__/pull/reviews-none');
-const reviewsDenied = require('../__mocks__/pull/reviews-denied');
-const reviewsApproved = require('../__mocks__/pull/reviews-approved');
+import reviewsNone from '../__mocks__/pull/reviews-none.js';
+import reviewsDenied from '../__mocks__/pull/reviews-denied.js';
+import reviewsApproved from '../__mocks__/pull/reviews-approved.js';
 
 test('review not required', () => {
     const pull = new Pull(payloadDefault);

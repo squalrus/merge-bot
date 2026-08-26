@@ -1,17 +1,17 @@
-const Pull = require('../lib/pull');
+import Pull from '../lib/pull.js';
 
-const payloadDefault = require('../__mocks__/pull/payload-default');
-const configChecks = require('../__mocks__/config/config-checks');
+import payloadDefault from '../__mocks__/pull/payload-default.js';
+import configChecks from '../__mocks__/config/config-checks.js';
 
-const checks0 = require('../__mocks__/checks/check-0');
-const checks1a = require('../__mocks__/checks/check-1a');
-const checks1b = require('../__mocks__/checks/check-1b');
-const checks2a = require('../__mocks__/checks/check-2a');
-const checks2b = require('../__mocks__/checks/check-2b');
-const checks2c = require('../__mocks__/checks/check-2c');
-const checks3a = require('../__mocks__/checks/check-3a');
-const checks3b = require('../__mocks__/checks/check-3b');
-const checks4a = require('../__mocks__/checks/check-4a');
+import checks0 from '../__mocks__/checks/check-0.js';
+import checks1a from '../__mocks__/checks/check-1a.js';
+import checks1b from '../__mocks__/checks/check-1b.js';
+import checks2a from '../__mocks__/checks/check-2a.js';
+import checks2b from '../__mocks__/checks/check-2b.js';
+import checks2c from '../__mocks__/checks/check-2c.js';
+import checks3a from '../__mocks__/checks/check-3a.js';
+import checks3b from '../__mocks__/checks/check-3b.js';
+import checks4a from '../__mocks__/checks/check-4a.js';
 
 test('empty checks data', () => {
     const pull = new Pull(payloadDefault);

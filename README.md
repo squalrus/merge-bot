@@ -1,5 +1,8 @@
 # PR Merge Bot
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Test](https://github.com/squalrus/merge-bot/actions/workflows/test.yml/badge.svg)](https://github.com/squalrus/merge-bot/actions/workflows/test.yml)
+
 This action manages pull request integrations by allowing a structured workflow to be defined.
 
 The workflow can use required labels, blocking labels, and require that reviewers sign-off for determining if a pull request should be integrated. By default the pull request will be blocked by incomplete/failing checks.
@@ -77,7 +80,7 @@ jobs:
     name: Merge
     steps:
     - name: Integration check
-      uses: squalrus/merge-bot@v0.1.0
+      uses: squalrus/merge-bot@v0.4.5
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         test: true
@@ -88,3 +91,49 @@ jobs:
         method: squash
         delete_source_branch: true
 ```
+
+### Retrying via a PR comment
+
+Merging can occasionally fail with a transient `Base branch was modified` error (typically when multiple merge-bot runs land close together). To let a comment on the pull request re-trigger evaluation, add `issue_comment` to the workflow's triggers, guarding the job so it only runs for comments on pull requests (`issue_comment` also fires for comments on plain issues, which have no pull request to evaluate):
+
+```yaml
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  merge:
+    if: github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    ...
+```
+
+## Development
+
+```bash
+npm install
+npm test
+```
+
+Tests live in `__tests__/` and use fixture payloads from `__mocks__/`.
+
+The action itself runs from a bundled `dist/index.js`, generated from `index.js` and `lib/` with [`@vercel/ncc`](https://github.com/vercel/ncc) — that's what [`action.yml`](action.yml) points at. After changing `index.js` or anything under `lib/`, rebuild and commit the result:
+
+```bash
+npm run build
+```
+
+A CI check ([`.github/workflows/build-check.yml`](.github/workflows/build-check.yml)) fails the PR if `dist/` is out of date with source.
+
+## Contributing
+
+Bug reports, feature requests, and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow, and [CLAUDE.md](CLAUDE.md) if you're working in this repo with Claude Code.
+
+## Project status
+
+This repo currently has open items around its GitHub Actions runtime version, dependency freshness, and open PR triage — see [AUDIT.md](AUDIT.md) for a full health check and [BACKLOG.md](BACKLOG.md) for tracked follow-up work.
+
+## License
+
+[MIT](LICENSE)

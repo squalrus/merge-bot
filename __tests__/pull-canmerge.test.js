@@ -1,19 +1,14 @@
-const Pull = require('../lib/pull');
+import Pull from '../lib/pull.js';
 
-const checks = require('../__mocks__/checks/check-4a');
+import checks from '../__mocks__/checks/check-4a.js';
 
-const payloadDefault = require('../__mocks__/pull/payload-default');
-const payloadReviewers0 = require('../__mocks__/pull/payload-reviewers-0');
-const payloadReviewers1 = require('../__mocks__/pull/payload-reviewers-1');
-const payloadReviewers2 = require('../__mocks__/pull/payload-reviewers-2');
-const payloadDefaultExpected = require('../__mocks__/pull/payload-default-expected');
+import payloadReviewers0 from '../__mocks__/pull/payload-reviewers-0.js';
+import payloadReviewers1 from '../__mocks__/pull/payload-reviewers-1.js';
+import payloadReviewers2 from '../__mocks__/pull/payload-reviewers-2.js';
 
-const reviewsNone = require('../__mocks__/pull/reviews-none');
-const reviewsDenied = require('../__mocks__/pull/reviews-denied');
-const reviewsApproved = require('../__mocks__/pull/reviews-approved');
-
-const reviewData = require('../__mocks__/pull/review-data');
-const reviewDataExpected = require('../__mocks__/pull/review-data-expected');
+import reviewsNone from '../__mocks__/pull/reviews-none.js';
+import reviewsDenied from '../__mocks__/pull/reviews-denied.js';
+import reviewsApproved from '../__mocks__/pull/reviews-approved.js';
 
 test('merge when a single required label matches', () => {
     const pull = new Pull(payloadReviewers0);

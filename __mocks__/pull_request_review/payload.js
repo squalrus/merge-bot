@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "action": "submitted",
     "review": {
         "id": 237895671,

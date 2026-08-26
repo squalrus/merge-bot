@@ -13,16 +13,16 @@ The action works and its test suite passes, but the project has had no code chan
 | Tests | ✅ Passing (39/39) |
 | Action runtime | ✅ Fixed — now declares `node20` |
 | Dependencies | 🟠 Multiple majors behind, security advisories open |
-| CI/CD | 🟠 Split across two unmonitored systems, one on EOL Node |
-| Open PRs | 🟠 7 open, oldest from 2019 |
+| CI/CD | 🟠 Split across two unmonitored systems, one on EOL Node; a `dist/` staleness check is now in place |
+| Open PRs | 🟠 8 open (incl. the `v0.4.8` fix PR above), oldest from 2019 |
 | Open issues | 🟠 8 open, oldest from 2019; checked against current code — 7 of 8 describe gaps that still exist |
-| Repo hygiene | 🟠 `node_modules` committed, 22 stale branches, no `.gitignore` |
+| Repo hygiene | ✅ Fixed — `node_modules` no longer committed, now bundled via `ncc`; 22 stale branches remain |
 | Docs | 🟡 README solid but no CONTRIBUTING/CLAUDE/SECURITY |
 
 ## Critical items
 
 1. ~~`action.yml` declares `runs.using: node12`~~ — **fixed 2026-08-26**: GitHub Actions had removed the Node 12 and Node 16 runtimes (supported runtimes are `node20`/`node24`). `action.yml` now declares `node20`; the existing test suite (39/39) was re-run and passes under Node 22, exercising the same `@actions/core`/`@actions/github` call paths. ([action.yml](action.yml))
-2. **`node_modules/` is committed to git** (6,630 tracked files) and there is no `.gitignore`. This bloats every clone/checkout, causes noisy diffs, and is the kind of thing that quietly reintroduces vulnerable code even after `package.json` is bumped, since the checked-in `node_modules` won't update itself. GitHub Actions still requires a JS action's dependencies to be present at runtime (there's no install step before `runs.main` executes), but committing raw `node_modules` is the outdated way of doing that — the current standard is to bundle with `@vercel/ncc` into a single `dist/index.js` containing only production dependencies, never `devDependencies`. See the backlog item for detail.
+2. ~~`node_modules/` is committed to git~~ — **fixed 2026-08-26** ([v0.4.8](https://github.com/squalrus/merge-bot/pull/81)): the 6,630 tracked `node_modules/` files were removed in favor of a single `@vercel/ncc`-bundled `dist/index.js`, built from `index.js`/`lib/` via `npm run build`. `action.yml`'s `runs.main` now points at `dist/index.js`, a `.gitignore` was added, and [`.github/workflows/build-check.yml`](.github/workflows/build-check.yml) fails any PR where `dist/` doesn't match a fresh build, so it can't silently drift the way `package.json`'s version once did. Only production `dependencies` get bundled — `jest`/Babel/etc. (the source of most `npm audit` findings, see below) never ship in the action at all now, not just "aren't committed."
 3. **`package.json` metadata is inconsistent with reality**:
    - `license: "ISC"` in `package.json` vs. the actual `LICENSE` file, which is MIT.
    - `name: "github-actions"` — a placeholder, not `merge-bot`.
@@ -38,23 +38,25 @@ Prod dependencies (`npm outdated`):
 | `@actions/github` | 4.0.0 | 9.1.1 | Five majors behind. `index.js` calls REST methods directly on the octokit client (e.g. `octokit.pulls.listReviews`) rather than under `.rest.*`, which is the v4-era API shape — upgrading is a breaking change for this code, not a drop-in bump. |
 | `jest` (dev) | 26.6.3 | 30.4.2 | Four majors behind. Most of the `npm audit` noise (Babel, `ws`, etc.) comes from this dependency's transitive tree, not from anything shipped in the action itself. |
 
-`npm audit` totals: **56 vulnerabilities** (6 critical, 16 high, 33 moderate, 1 low) across 533 total dependencies (22 prod / 512 dev). The prod-facing surface is small (`@actions/core`, `@actions/github`, and their transitive deps); the bulk of the critical/high findings are in the `jest` 26 dev toolchain and would clear substantially by upgrading `jest` alone.
+`npm audit` totals: **56 vulnerabilities** (6 critical, 16 high, 33 moderate, 1 low) across 533 total dependencies (22 prod / 512 dev). The prod-facing surface is small (`@actions/core`, `@actions/github`, and their transitive deps); the bulk of the critical/high findings are in the `jest` 26 dev toolchain and would clear substantially by upgrading `jest` alone. As of [v0.4.8](https://github.com/squalrus/merge-bot/pull/81), the dev-toolchain findings no longer matter for what actually *runs*: `dist/index.js` is bundled with `@vercel/ncc`, which only pulls in `dependencies`, so `jest`/Babel/etc. never ship in the action regardless of this audit's local `npm audit` numbers. Upgrading `jest` is still worth doing for local dev hygiene, just no longer a runtime security question.
 
 No `.github/dependabot.yml` exists in the repo, yet Dependabot has opened PRs (#68–#75) — this is GitHub's automatic security-update behavior, not a configured `version-updates` schedule. Without a config file there's no grouping, no schedule, and no policy for how these PRs get triaged, which is consistent with 6 of them sitting open since 2021–2023.
 
 ## CI/CD pipelines
 
-Two separate, disconnected systems exist:
+Three separate systems exist, still not consolidated:
 
 - **`azure-pipelines.yml`** — runs `npm install -g jest --save-dev && npm install && npm test` on `pool: ubuntu-latest`, pinned to **Node 10.x** (EOL April 2021). Triggers on PRs to `master`. **Confirmed active and currently broken (2026-08-26):** the global `jest` install pulls latest Jest (30.x), whose `jest-resolve` now depends on `unrs-resolver`, a native module whose postinstall fails under Node 10.x — every run currently errors before tests even execute. There is no badge or reference to it from the README. See the backlog item for the fix.
 - **`.github/workflows/merge-bot.yml`** — this is the action *using itself* (`uses: squalrus/merge-bot@master`) to manage this repo's own PRs. It runs with `reviewers: false` and `checks_enabled: false`, meaning label alone (`ready`) is sufficient to auto-merge and delete branches on this repo. There is no separate GitHub Actions workflow that runs `npm test` on PRs — test execution depends entirely on the Azure pipeline being healthy.
+- **`.github/workflows/build-check.yml`** — added in [v0.4.8](https://github.com/squalrus/merge-bot/pull/81). Rebuilds `dist/` on every PR to `master` and fails if it doesn't match a fresh `npm run build`, so the committed bundle can't drift from `index.js`/`lib/`. This doesn't run `npm test` — it only guards the build artifact, so the "no working CI test signal on PRs" gap below is unchanged by it.
 
 **Recommendation:** consolidate onto a single GitHub Actions test workflow (`.github/workflows/test.yml`) matrixed across the Node versions actually supported by the declared `runs.using` value, and either retire `azure-pipelines.yml` or confirm it's still wired up. Add a status badge to the README either way.
 
-## Open pull requests (7)
+## Open pull requests (8)
 
 | # | Title | Author | Opened | Mergeable | Notes |
 |---|---|---|---|---|---|
+| [#81](https://github.com/squalrus/merge-bot/pull/81) | v0.4.8 — bundle with ncc, remove committed node_modules | squalrus (you) | 2026-08-26 | ✅ | The `node_modules`/`dist` fix described throughout this audit; awaiting merge. |
 | [#75](https://github.com/squalrus/merge-bot/pull/75) | Bump json5 from 2.2.0 to 2.2.3 | dependabot | 2023-01-07 | ✅ | dev dep |
 | [#74](https://github.com/squalrus/merge-bot/pull/74) | Bump qs from 6.5.2 to 6.5.3 | dependabot | 2022-12-10 | ✅ | dev dep |
 | [#73](https://github.com/squalrus/merge-bot/pull/73) | Bump decode-uri-component from 0.2.0 to 0.2.2 | dependabot | 2022-12-04 | ✅ | dev dep |
@@ -66,7 +68,7 @@ Two separate, disconnected systems exist:
 | [#64](https://github.com/squalrus/merge-bot/pull/64) | Bump ansi-regex from 5.0.0 to 5.0.1 | dependabot | 2021-11-02 | ✅ | dev dep |
 | [#12](https://github.com/squalrus/merge-bot/pull/12) | Resubmit reviews after push | squalrus (you) | 2019-10-04 | ❌ CONFLICTING | Your own 6-year-old branch, needs a decision: land or close |
 
-**Recommendation:** most of the dependabot PRs are individually superseded by a single `jest`/`@actions/*` major-version upgrade — close them in favor of one consolidated dependency-update PR rather than merging piecemeal. #72 is the one PR that needs a real human decision (feature review), and #12 needs an explicit close-or-rebase call since it's your own stale work.
+**Recommendation:** merge #81 (it's the fix this audit tracks). Most of the dependabot PRs are individually superseded by a single `jest`/`@actions/*` major-version upgrade — close them in favor of one consolidated dependency-update PR rather than merging piecemeal. #72 is the one PR that needs a real human decision (feature review), and #12 needs an explicit close-or-rebase call since it's your own stale work.
 
 ## Open issues (8)
 
@@ -87,8 +89,8 @@ Checked each against the current code (`lib/pull.js`, `lib/config.js`, `index.js
 
 ## Repository hygiene observations
 
-- **22 stale branches on `origin`** with no corresponding open PR (e.g. `add-jest`, `azure-pipelines`, `fork-support`, `octomkit-api`, `test-branch`, plus 9 `dependabot/npm_and_yarn/*` branches left over from merged/closed PRs). None are merged into `master`. Worth pruning.
-- No `.gitignore` at all — beyond `node_modules`, nothing is excluded from version control.
+- **22 stale branches on `origin`** with no corresponding open PR (e.g. `add-jest`, `azure-pipelines`, `fork-support`, `octomkit-api`, `test-branch`, plus 9 `dependabot/npm_and_yarn/*` branches left over from merged/closed PRs). None are merged into `master`. Worth pruning. (This count predates the `v0.4.8` branch itself, which is expected to merge and be deleted normally.)
+- ~~No `.gitignore` at all~~ — **fixed 2026-08-26**: added alongside the `node_modules` removal ([v0.4.8](https://github.com/squalrus/merge-bot/pull/81)); currently just ignores `node_modules/`.
 - No linter/formatter config (no ESLint, Prettier, or `.editorconfig`) and no `engines` field in `package.json` pinning a supported Node version for local development.
 - No `SECURITY.md` or `CODEOWNERS`.
 - Issue templates exist (`bug_report.md`, `feature_request.md`) but are the unmodified GitHub defaults (still reference "Smartphone" / "Desktop" fields, irrelevant for a GitHub Action).
@@ -105,10 +107,10 @@ Checked each against the current code (`lib/pull.js`, `lib/config.js`, `index.js
 
 1. ~~Fix `action.yml` runtime (`node12` → `node20`)~~ — done 2026-08-26.
 2. Reconcile remaining `package.json` fields (name, license) with reality — version is now fixed and guarded.
-3. Replace committed `node_modules` with an `ncc`-bundled `dist/` and a `.gitignore`.
-4. Consolidate CI onto one GitHub Actions workflow; decide the fate of `azure-pipelines.yml`.
+3. ~~Replace committed `node_modules` with an `ncc`-bundled `dist/` and a `.gitignore`~~ — done 2026-08-26 ([v0.4.8](https://github.com/squalrus/merge-bot/pull/81)).
+4. Consolidate CI onto one GitHub Actions workflow (`npm test`, not just the new build-check); decide the fate of `azure-pipelines.yml`.
 5. Upgrade `jest` to clear the bulk of `npm audit` findings; upgrade `@actions/core`/`@actions/github` deliberately (breaking API shape change).
-6. Triage the 7 open PRs (close superseded dependency bumps, review #72, resolve #12).
+6. Merge #81, then triage the remaining 7 open PRs (close superseded dependency bumps, review #72, resolve #12).
 7. Prune the 22 stale origin branches.
 8. Add `dependabot.yml` so future dependency PRs are scheduled/grouped instead of arriving ad hoc.
 

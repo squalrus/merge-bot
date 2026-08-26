@@ -11,15 +11,16 @@ npm install
 npm test
 ```
 
-There's no build/compile step. `index.js` requires `lib/config.js`, `lib/pull.js`, and `lib/message.js` directly and runs on plain Node.js, under whatever runtime version `action.yml`'s `runs.using` declares.
+`index.js` requires `lib/config.js`, `lib/pull.js`, and `lib/message.js` directly and runs on plain Node.js. What actually ships is `dist/index.js`, a single file bundled from those sources with [`@vercel/ncc`](https://github.com/vercel/ncc) — that's what `action.yml`'s `runs.main` points at, not `index.js` directly.
 
 ## Making a change
 
 1. Branch off `master`.
 2. Add or update tests under `__tests__/` for any behavior change — `lib/pull.js` in particular (labels, reviews, checks, merge eligibility) should stay fully covered. Fixture payloads live in `__mocks__/` and mirror real GitHub webhook payload shapes; add new fixtures there rather than inlining large payload objects in test files.
 3. Run `npm test` and make sure everything passes.
-4. If you change an input's name, default, or meaning, update it in **both** `action.yml` and the README's Inputs section — they're expected to match exactly.
-5. Open a PR against `master`.
+4. If you changed `index.js` or anything under `lib/`, run `npm run build` and commit the resulting `dist/index.js` — CI (`.github/workflows/build-check.yml`) fails the PR if `dist/` is stale relative to source.
+5. If you change an input's name, default, or meaning, update it in **both** `action.yml` and the README's Inputs section — they're expected to match exactly.
+6. Open a PR against `master`.
 
 There's no linter or formatter configured currently, so just match the existing style (4-space indent, semicolons, `const`/`let`).
 

@@ -2,6 +2,20 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.8] — 2026-08-26
+
+### Added
+- **Bundled build.** The action now runs from `dist/index.js`, generated from `index.js` + `lib/` with [`@vercel/ncc`](https://github.com/vercel/ncc) via a new `npm run build` script. Only production `dependencies` get bundled — `devDependencies` like `jest` never ship. (`package.json`, `dist/index.js`)
+- **Build staleness check.** `.github/workflows/build-check.yml` rebuilds `dist/` on every PR to `master` and fails if it doesn't match a fresh build from source, so the bundle can't silently drift from `index.js`/`lib/`. (`.github/workflows/build-check.yml`)
+
+### Changed
+- **`action.yml` entry point.** `runs.main` now points at `dist/index.js` instead of `index.js`. (`action.yml`)
+- **Docs.** README, CONTRIBUTING, and CLAUDE.md updated to describe the bundle step and the requirement to rebuild `dist/` after touching `index.js` or `lib/`. (`README.md`, `CONTRIBUTING.md`, `CLAUDE.md`)
+- **Open issues reviewed.** `AUDIT.md` now cross-checks all 8 open GitHub issues against the current code instead of just listing them — most describe gaps still present today, and #77 (a crash on `push` events) was confirmed as a live, reproducible bug. (`AUDIT.md`)
+
+### Removed
+- **Committed `node_modules/`.** 6,630 tracked files removed from git in favor of the bundled `dist/index.js`; added `.gitignore`. (`.gitignore`)
+
 ## [0.4.7] — 2026-08-26
 
 ### Fixed

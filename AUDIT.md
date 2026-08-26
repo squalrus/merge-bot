@@ -15,6 +15,7 @@ The action works and its test suite passes, but the project has had no code chan
 | Dependencies | 🟠 Multiple majors behind, security advisories open |
 | CI/CD | 🟠 Split across two unmonitored systems, one on EOL Node |
 | Open PRs | 🟠 7 open, oldest from 2019 |
+| Open issues | 🟠 8 open, oldest from 2019; checked against current code — 7 of 8 describe gaps that still exist |
 | Repo hygiene | 🟠 `node_modules` committed, 22 stale branches, no `.gitignore` |
 | Docs | 🟡 README solid but no CONTRIBUTING/CLAUDE/SECURITY |
 
@@ -66,6 +67,23 @@ Two separate, disconnected systems exist:
 | [#12](https://github.com/squalrus/merge-bot/pull/12) | Resubmit reviews after push | squalrus (you) | 2019-10-04 | ❌ CONFLICTING | Your own 6-year-old branch, needs a decision: land or close |
 
 **Recommendation:** most of the dependabot PRs are individually superseded by a single `jest`/`@actions/*` major-version upgrade — close them in favor of one consolidated dependency-update PR rather than merging piecemeal. #72 is the one PR that needs a real human decision (feature review), and #12 needs an explicit close-or-rebase call since it's your own stale work.
+
+## Open issues (8)
+
+Checked each against the current code (`lib/pull.js`, `lib/config.js`, `index.js`), not just left as reported — since none of it has changed since 2021, most are still exactly as described.
+
+| # | Title | Author | Opened | Still valid? | Notes |
+|---|---|---|---|---|---|
+| [#77](https://github.com/squalrus/merge-bot/issues/77) | Error: Cannot read properties of undefined (reading 'labels') | chickenandpork (community) | 2023-08-24 | ✅ Confirmed, reproducible | [Pull's constructor](lib/pull.js#L3) does `payload.pull_request.labels.map(...)` unconditionally. The reporter's workflow triggers on `push` in addition to `pull_request`; a `push` event payload has no `pull_request` object at all, so this throws on every push. `index.js` never checks that `github.context.payload.pull_request` exists before constructing `Pull`. |
+| [#59](https://github.com/squalrus/merge-bot/issues/59) | Time based allow/block of merges | alper (community) | 2021-06-15 | ✅ Still unimplemented | [lib/config.js](lib/config.js) has no time-window input, and nothing in `Pull.canMerge` consults a clock. Net-new feature — no work started. |
+| [#56](https://github.com/squalrus/merge-bot/issues/56) | Allow merges even if the base branch changes | RevolutionTech (community) | 2021-04-28 | ✅ Still unimplemented | [index.js](index.js#L57) calls `octokit.pulls.merge` with no retry logic; a "base branch was modified" failure from a concurrent merge just bubbles up to `core.setFailed`. Nothing tolerates or retries on base drift. |
+| [#37](https://github.com/squalrus/merge-bot/issues/37) | Not detecting reviews? | aaron-trout (community) | 2020-09-03 | 🟡 Partially explained | [Pull's constructor](lib/pull.js#L10) reads only `payload.pull_request.requested_reviewers` — it never looks at `requested_teams`. A CODEOWNERS rule assigning a *team* (as in the report) won't show up there. Combined with no re-trigger on review submission (see #22), a stale payload at merge time is the likely proximate cause, but the missing `requested_teams` handling is a real, still-current gap in its own right. |
+| [#22](https://github.com/squalrus/merge-bot/issues/22) | Re-trigger Action when checks complete | squalrus (you) | 2020-01-26 | ✅ Still true | The action runs once per triggering event and never requeues itself; [.github/workflows/merge-bot.yml](.github/workflows/merge-bot.yml) doesn't listen for `check_suite`/`workflow_run`/`pull_request_review` completion, so a check finishing after the bot's last run won't cause a re-evaluation. |
+| [#14](https://github.com/squalrus/merge-bot/issues/14) | follow the configured required review count | Evanion (community) | 2019-12-20 | ✅ Still true | [lib/config.js:6](lib/config.js#L6) `review_required` is a plain boolean; [Pull.isReviewComplete](lib/pull.js#L20) requires 100% of `requested_reviewers` to approve, with no concept of a numeric threshold or the repo's actual branch-protection required-approval count. |
+| [#13](https://github.com/squalrus/merge-bot/issues/13) | Update from base branch before merging. | Evanion (community) | 2019-12-20 | ✅ Still true | No call to `pulls.updateBranch` (or equivalent) anywhere in the codebase — the bot never brings a PR branch up to date with base before merging. |
+| [#7](https://github.com/squalrus/merge-bot/issues/7) | Feature: on commit, remove label(?) or Re-request review(?) | squalrus (you) | 2019-09-27 | ✅ Still true | No label-removal or re-review-request logic exists anywhere in `index.js`/`lib/`. |
+
+**Recommendation:** #77 is the one that should be prioritized above the others — it's a confirmed crash-on-every-push bug affecting a real user today, not a feature request, and the fix (guard on `payload.pull_request` before constructing `Pull`, in [index.js](index.js#L16)) is small and self-contained. The rest are long-standing feature requests that are all still genuinely open against today's code; worth a pass to confirm which are still wanted versus safe to close as stale, but none can be closed as "already fixed."
 
 ## Repository hygiene observations
 

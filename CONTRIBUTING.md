@@ -15,12 +15,12 @@ npm test
 
 ## Making a change
 
-1. Branch off `master`.
+1. Branch off `main`.
 2. Add or update tests under `__tests__/` for any behavior change — `lib/pull.js` in particular (labels, reviews, checks, merge eligibility) should stay fully covered. Fixture payloads live in `__mocks__/` and mirror real GitHub webhook payload shapes; add new fixtures there rather than inlining large payload objects in test files.
 3. Run `npm test` and `npm run lint` and make sure both pass — CI (`.github/workflows/test.yml`) runs both on every PR. ESLint's config is in [eslint.config.js](eslint.config.js) and enforces the existing style (4-space indent, semicolons); `.editorconfig` covers the same basics for editors that read it.
 4. If you changed `index.js` or anything under `lib/`, run `npm run build` and commit the resulting `dist/index.js` — CI (`.github/workflows/build-check.yml`) fails the PR if `dist/` is stale relative to source.
 5. If you change an input's name, default, or meaning, update it in **both** `action.yml` and the README's Inputs section — they're expected to match exactly.
-6. Open a PR against `master`.
+6. Open a PR against `main`.
 
 ## How PRs get merged here
 

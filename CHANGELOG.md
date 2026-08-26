@@ -2,6 +2,15 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.12] — 2026-08-26
+
+### Changed
+- **Consolidated CI onto GitHub Actions.** Tests now run via `.github/workflows/test.yml` (`npm test` on Node 20, triggered on PRs to `master`). Added because the previous `azure-pipelines.yml` pipeline — the only place `npm test` ran — was pinned to Node 10.x (EOL 2021) and had gone fully broken (Jest 30's `unrs-resolver` native dependency fails to install under Node 10.x). A status badge was added to the README pointing at the new workflow. (`.github/workflows/test.yml`, `README.md`)
+- **AUDIT.md and BACKLOG.md refreshed.** Re-checked live PR/issue/branch state against GitHub and corrected several stale figures the audit had accumulated (a merged PR still shown as open, an auto-closed PR still listed, a stale-branch count inflated by deleted local tracking refs). Added backlog entries for the 8 open GitHub issues (one confirmed crash bug plus 7 feature requests) and previously-untracked hygiene gaps (linter/`engines` field, `CODEOWNERS`, `SECURITY.md`). (`AUDIT.md`, `BACKLOG.md`)
+
+### Removed
+- **`azure-pipelines.yml`.** Superseded by `.github/workflows/test.yml`; see above. (`azure-pipelines.yml`)
+
 ## [0.4.11] — 2026-08-26
 
 ### Changed

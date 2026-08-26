@@ -19,7 +19,7 @@ Guidance for Claude Code when working in this repository.
 - Run `npm test` after any change to `lib/` or `index.js` — the suite is fast (~40s) and should stay green.
 - If you touch an action input, update `action.yml`, `lib/config.js`, and the README's Inputs section together — they're expected to match exactly and nothing enforces that automatically.
 - The action runs from `dist/index.js`, a single file bundled from `index.js` + `lib/` with `@vercel/ncc` (`npm run build`) — that's what `action.yml`'s `runs.main` points at, not `index.js` directly. After any change to `index.js` or `lib/`, rebuild and commit `dist/index.js`; [`.github/workflows/build-check.yml`](.github/workflows/build-check.yml) fails the PR if it's stale. `node_modules/` is gitignored and not committed — only `dist/` is.
-- There's no linter/formatter configured. Match existing style (4-space indent, semicolons).
+- Run `npm run lint` (ESLint, config in `eslint.config.js`) to check style (4-space indent, semicolons). `.editorconfig` covers the same basics for editors that read it.
 
 ## Known constraints — read before proposing dependency/runtime upgrades
 

@@ -2,18 +2,13 @@ import Pull from '../lib/pull.js';
 
 import checks from '../__mocks__/checks/check-4a.js';
 
-import payloadDefault from '../__mocks__/pull/payload-default.js';
 import payloadReviewers0 from '../__mocks__/pull/payload-reviewers-0.js';
 import payloadReviewers1 from '../__mocks__/pull/payload-reviewers-1.js';
 import payloadReviewers2 from '../__mocks__/pull/payload-reviewers-2.js';
-import payloadDefaultExpected from '../__mocks__/pull/payload-default-expected.js';
 
 import reviewsNone from '../__mocks__/pull/reviews-none.js';
 import reviewsDenied from '../__mocks__/pull/reviews-denied.js';
 import reviewsApproved from '../__mocks__/pull/reviews-approved.js';
-
-import reviewData from '../__mocks__/pull/review-data.js';
-import reviewDataExpected from '../__mocks__/pull/review-data-expected.js';
 
 test('merge when a single required label matches', () => {
     const pull = new Pull(payloadReviewers0);

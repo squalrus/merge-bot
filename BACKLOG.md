@@ -33,7 +33,6 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 
 | Title | Effort | Value |
 |---|---|---|
-| [Add dependabot.yml for scheduled dependency updates](#add-dependabotyml-for-scheduled-dependency-updates) | S | M |
 | [Prune stale origin branches](#prune-stale-origin-branches) | S | L |
 
 ### Known issues
@@ -71,11 +70,6 @@ No open limitations.
 **Type:** Bug
 **Why** — Reported in [#37](https://github.com/squalrus/merge-bot/issues/37). [Pull's constructor](lib/pull.js#L10) reads only `payload.pull_request.requested_reviewers`, never `requested_teams` — a CODEOWNERS rule assigning a *team* (as in the original report) won't register as a pending reviewer, so the bot can consider reviews complete while a team review is genuinely still outstanding.
 **Notes:** Add `requested_teams` handling alongside `requested_reviewers` in `Pull`'s review-compilation logic. Likely compounds with [Re-trigger Action when checks complete](#re-trigger-action-when-checks-complete) (a stale payload at merge time) — worth fixing together since the original report probably hit both.
-
-### Add dependabot.yml for scheduled dependency updates
-**Type:** Improvement
-**Why** — There's no `.github/dependabot.yml`, yet Dependabot has been opening PRs (via GitHub's automatic security updates). Without a config there's no schedule, grouping, or policy, which is part of why 6+ dependency PRs sat open for years.
-**Notes:** Add a `version-updates` config for the `npm` ecosystem with a weekly/monthly schedule and grouping (e.g. group all dev-dependency bumps together) so future PRs arrive in batches instead of one-off drips.
 
 ### Prune stale origin branches
 **Type:** Improvement

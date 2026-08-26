@@ -1,6 +1,7 @@
 # PR Merge Bot
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Test](https://github.com/squalrus/merge-bot/actions/workflows/test.yml/badge.svg)](https://github.com/squalrus/merge-bot/actions/workflows/test.yml)
 
 This action manages pull request integrations by allowing a structured workflow to be defined.
 

@@ -6,18 +6,18 @@ This document is a point-in-time health check of the `merge-bot` repository: wha
 
 ## Summary
 
-The action works and its test suite passes, but the project has had no code changes since **2021-04-24** (5+ years) while still being actively consumed (it merges its own PRs via `.github/workflows/merge-bot.yml`). The most urgent issue — the GitHub Actions runtime it declared (`node12`) having been removed by GitHub — was fixed 2026-08-26.
+After 5+ years without a code change, the repository had a concentrated remediation push on **2026-08-26** (v0.4.7 through v0.4.11: runtime fix, dependency upgrades, ESM migration, test coverage, `dist/` bundling, `package.json` cleanup, CI consolidation) plus CLAUDE.md/CONTRIBUTING.md/CHANGELOG.md/BACKLOG.md scaffolding — none of which had been reflected in this file's own status table until now. Every item in this audit's original "Critical items" and CI/CD sections is now fixed; what remains is long-tail PR/issue triage and lower-value hygiene items tracked in [BACKLOG.md](BACKLOG.md).
 
 | Area | Status |
 |---|---|
 | Tests | ✅ Passing (50/50), 100% statement/branch coverage across `index.js` and `lib/` (was untested for `index.js` and had several dark branches before v0.4.9) |
 | Action runtime | ✅ Fixed — now declares `node20` |
 | Dependencies | ✅ Fixed — jest 26→30, @actions/core 1→3, @actions/github 4→9; `npm audit` 54 vulnerabilities → 0 |
-| CI/CD | 🟠 Split across two unmonitored systems, one on EOL Node; a `dist/` staleness check is now in place |
-| Open PRs | 🟠 7 open (down from 8), oldest from 2019 |
+| CI/CD | ✅ Fixed — `.github/workflows/test.yml` runs `npm test` on PRs (Node 20); `azure-pipelines.yml` (EOL Node 10, actively broken) removed |
+| Open PRs | 🟠 9 open, oldest from 2019. #68 auto-closed itself 2026-08-26 as predicted below (advisory no longer applied post-v0.4.11) |
 | Open issues | 🟠 8 open, oldest from 2019; checked against current code — 7 of 8 describe gaps that still exist |
-| Repo hygiene | ✅ Fixed — `node_modules` no longer committed, now bundled via `ncc`; 22 stale branches remain |
-| Docs | 🟡 README solid but no CONTRIBUTING/CLAUDE/SECURITY |
+| Repo hygiene | ✅ Fixed — `node_modules` no longer committed, now bundled via `ncc`; stale-branch picture improved (see below) |
+| Docs | 🟢 CONTRIBUTING.md, CLAUDE.md, CHANGELOG.md, BACKLOG.md all added; README solid; still no SECURITY.md |
 
 ## Critical items
 
@@ -41,35 +41,38 @@ Prod dependencies — **fixed in v0.4.11** ([released 2026-08-26](https://github
 
 `npm audit` totals (re-checked 2026-08-26): **0 vulnerabilities** — down from 54. As of v0.4.8, dev-dependency advisories don't affect runtime anyway (`dist/index.js` bundles only production dependencies via `@vercel/ncc`), but clearing the local `npm audit` score improves CI/CD signaling and local dev hygiene.
 
-Dependabot security-alert PRs (#68–#75, open since 2021–2023) — most will auto-close as GitHub re-scans the default branch after this merge and finds the advisories no longer apply. No `.github/dependabot.yml` exists (yet), so no version-updates schedule; the backlog has an item to add one.
+Dependabot security-alert PRs (#64, #69–#75, open since 2021–2023) — #68 already auto-closed on 2026-08-26 as GitHub re-scanned the default branch post-v0.4.11 and found its advisory no longer applied; expect the rest to follow the same way over time, though they can also just be closed manually now. No `.github/dependabot.yml` exists (yet), so no version-updates schedule; the backlog has an item to add one.
 
 ## CI/CD pipelines
 
-Three separate systems exist, still not consolidated:
+**Fixed 2026-08-26:** `azure-pipelines.yml` has been deleted and `.github/workflows/test.yml` added (`npm ci && npm test` on `actions/setup-node@v4` with `node-version: 20`, triggered on PRs to `master`), matching the pattern already used by `build-check.yml`. Verified locally: 50/50 tests pass under Node 20. A status badge was added to the README. This closes the backlog item "Consolidate CI onto a single GitHub Actions workflow."
 
-- **`azure-pipelines.yml`** — runs `npm install -g jest --save-dev && npm install && npm test` on `pool: ubuntu-latest`, pinned to **Node 10.x** (EOL April 2021). Triggers on PRs to `master`. **Status update (v0.4.11):** The earlier Jest 30 / `unrs-resolver` postinstall failure on Node 10.x is no longer a blocker for the action itself (dev dependencies don't ship in `dist/`), but the pipeline's own test step still fails if triggered. The underlying Node 10.x pin is obsolete regardless — see the backlog item to consolidate CI onto a single GitHub Actions workflow instead.
-- **`.github/workflows/merge-bot.yml`** — this is the action *using itself* (`uses: squalrus/merge-bot@master`) to manage this repo's own PRs. It runs with `reviewers: false` and `checks_enabled: false`, meaning label alone (`ready`) is sufficient to auto-merge and delete branches on this repo. There is no separate GitHub Actions workflow that runs `npm test` on PRs — test execution depends entirely on the Azure pipeline being healthy.
-- **`.github/workflows/build-check.yml`** — added in [v0.4.8](https://github.com/squalrus/merge-bot/pull/81). Rebuilds `dist/` on every PR to `master` and fails if it doesn't match a fresh `npm run build`, so the committed bundle can't drift from `index.js`/`lib/`. This doesn't run `npm test` — it only guards the build artifact, so the "no working CI test signal on PRs" gap below is unchanged by it.
+Four systems now exist on GitHub Actions (no more Azure dependency):
 
-**Recommendation:** consolidate onto a single GitHub Actions test workflow (`.github/workflows/test.yml`) matrixed across the Node versions actually supported by the declared `runs.using` value, and either retire `azure-pipelines.yml` or confirm it's still wired up. Add a status badge to the README either way.
+- **`.github/workflows/test.yml`** *(new)* — runs `npm test` on PRs to `master`, Node 20. This is the CI test signal that was previously missing entirely (the old Azure pipeline was the only thing running `npm test`, and it was broken — see history below).
+- **`.github/workflows/merge-bot.yml`** — the action *using itself* (`uses: squalrus/merge-bot@master`) to manage this repo's own PRs. Runs with `reviewers: false` and `checks_enabled: false`, meaning label alone (`ready`) is sufficient to auto-merge, and `delete_source_branch: false` — this repo's own bot-merged PRs do **not** get their branches deleted, which is one contributor to the stale-branch count below (though not the dominant one currently).
+- **`.github/workflows/build-check.yml`** — added in [v0.4.8](https://github.com/squalrus/merge-bot/pull/81). Rebuilds `dist/` on every PR to `master` and fails if it doesn't match a fresh `npm run build`.
+- **`.github/workflows/version-check.yml`** — added alongside the `package.json` version fix. Fails a tag push if it doesn't match `package.json`'s version.
 
-## Open pull requests (8)
+**Retired:** `azure-pipelines.yml` (ran `npm install -g jest --save-dev && npm install && npm test` on **Node 10.x**, EOL April 2021, triggered on PRs to `master`). It was actively broken as of 2026-08-26: the global `npm install -g jest` step pulled Jest 30.x, whose `jest-resolve` dependency (`unrs-resolver`, a native module) fails its postinstall script under Node 10.x. No fix was applied — it was deleted outright, since `test.yml` supersedes it and the Node 10.x pin was obsolete regardless.
+
+## Open pull requests (9)
+
+**Status update (2026-08-26):** #81 (the `node_modules`/`dist` bundling fix) has since merged as v0.4.8, and #68 ("Bump minimist") auto-closed itself today, exactly as this audit previously predicted — its advisory no longer applies now that dev dependencies don't ship in `dist/`. Re-checked live via `gh pr list`; 9 remain open, table below reflects current state.
 
 | # | Title | Author | Opened | Mergeable | Notes |
 |---|---|---|---|---|---|
-| [#81](https://github.com/squalrus/merge-bot/pull/81) | v0.4.8 — bundle with ncc, remove committed node_modules | squalrus (you) | 2026-08-26 | ✅ | The `node_modules`/`dist` fix described throughout this audit; awaiting merge. |
-| [#75](https://github.com/squalrus/merge-bot/pull/75) | Bump json5 from 2.2.0 to 2.2.3 | dependabot | 2023-01-07 | ✅ | dev dep |
-| [#74](https://github.com/squalrus/merge-bot/pull/74) | Bump qs from 6.5.2 to 6.5.3 | dependabot | 2022-12-10 | ✅ | dev dep |
-| [#73](https://github.com/squalrus/merge-bot/pull/73) | Bump decode-uri-component from 0.2.0 to 0.2.2 | dependabot | 2022-12-04 | ✅ | dev dep |
-| [#72](https://github.com/squalrus/merge-bot/pull/72) | Make the action work with pull request comment event | umegaya (community) | 2022-11-04 | ✅ | Real feature contribution, unlabeled, never triaged |
-| [#71](https://github.com/squalrus/merge-bot/pull/71) | Bump @actions/core from 1.2.6 to 1.9.1 | dependabot | 2022-08-18 | ✅ | Superseded by going straight to 3.0.1 |
-| [#70](https://github.com/squalrus/merge-bot/pull/70) | Bump node-fetch from 2.6.1 to 2.6.7 | dependabot | 2022-06-25 | ✅ | dev dep |
-| [#69](https://github.com/squalrus/merge-bot/pull/69) | Bump jsdom from 16.7.0 | dependabot | 2022-06-23 | ✅ | dev dep, superseded by a jest 30 upgrade |
-| [#68](https://github.com/squalrus/merge-bot/pull/68) | Bump minimist from 1.2.5 to 1.2.6 | dependabot | 2022-03-24 | ✅ | dev dep |
-| [#64](https://github.com/squalrus/merge-bot/pull/64) | Bump ansi-regex from 5.0.0 to 5.0.1 | dependabot | 2021-11-02 | ✅ | dev dep |
-| [#12](https://github.com/squalrus/merge-bot/pull/12) | Resubmit reviews after push | squalrus (you) | 2019-10-04 | ❌ CONFLICTING | Your own 6-year-old branch, needs a decision: land or close |
+| [#75](https://github.com/squalrus/merge-bot/pull/75) | Bump json5 from 2.2.0 to 2.2.3 | dependabot | 2023-01-07 | ❌ CONFLICTING | dev dep |
+| [#74](https://github.com/squalrus/merge-bot/pull/74) | Bump qs from 6.5.2 to 6.5.3 | dependabot | 2022-12-10 | ❌ CONFLICTING | dev dep |
+| [#73](https://github.com/squalrus/merge-bot/pull/73) | Bump decode-uri-component from 0.2.0 to 0.2.2 | dependabot | 2022-12-04 | ❌ CONFLICTING | dev dep |
+| [#72](https://github.com/squalrus/merge-bot/pull/72) | Make the action work with pull request comment event | umegaya (community) | 2022-11-04 | ⚠️ UNKNOWN | Real feature contribution, unlabeled, never triaged |
+| [#71](https://github.com/squalrus/merge-bot/pull/71) | Bump @actions/core from 1.2.6 to 1.9.1 | dependabot | 2022-08-18 | ❌ CONFLICTING | Superseded by going straight to 3.0.1 |
+| [#70](https://github.com/squalrus/merge-bot/pull/70) | Bump node-fetch from 2.6.1 to 2.6.7 | dependabot | 2022-06-25 | ❌ CONFLICTING | dev dep |
+| [#69](https://github.com/squalrus/merge-bot/pull/69) | Bump jsdom from 16.4.0 to 16.7.0 | dependabot | 2022-06-23 | ❌ CONFLICTING | dev dep, superseded by the jest 30 upgrade |
+| [#64](https://github.com/squalrus/merge-bot/pull/64) | Bump ansi-regex from 5.0.0 to 5.0.1 | dependabot | 2021-11-02 | ❌ CONFLICTING | dev dep |
+| [#12](https://github.com/squalrus/merge-bot/pull/12) | Resubmit reviews after push | squalrus (you) | 2019-10-04 | ⚠️ UNKNOWN | Your own 6-year-old branch, needs a decision: land or close |
 
-**Recommendation:** merge #81 (it's the fix this audit tracks). Most of the dependabot PRs are individually superseded by a single `jest`/`@actions/*` major-version upgrade — close them in favor of one consolidated dependency-update PR rather than merging piecemeal. #72 is the one PR that needs a real human decision (feature review), and #12 needs an explicit close-or-rebase call since it's your own stale work.
+**Recommendation:** all 7 remaining dependabot PRs now show CONFLICTING (they've drifted further as `package.json`/`package-lock.json` changed underneath them this session) and are individually superseded by the v0.4.11 `jest`/`@actions/*` upgrade — close them rather than attempting to rebase and merge piecemeal. #72 is the one PR that needs a real human decision (feature review), and #12 needs an explicit close-or-rebase call since it's your own stale work. This matches the backlog item "Triage the 7 open pull requests" (written when #68 was still counted; it's now 6 dependabot PRs plus #64, which the backlog text omitted).
 
 ## Open issues (8)
 
@@ -90,7 +93,7 @@ Checked each against the current code (`lib/pull.js`, `lib/config.js`, `index.js
 
 ## Repository hygiene observations
 
-- **22 stale branches on `origin`** with no corresponding open PR (e.g. `add-jest`, `azure-pipelines`, `fork-support`, `octomkit-api`, `test-branch`, plus 9 `dependabot/npm_and_yarn/*` branches left over from merged/closed PRs). None are merged into `master`. Worth pruning. (This count predates the `v0.4.8` branch itself, which is expected to merge and be deleted normally.)
+- **Stale-branch picture re-checked 2026-08-26** (`git fetch --prune` + `git branch -r --no-merged`): the "22 stale branches" figure was stale itself — it included local tracking refs for branches already deleted on GitHub. The real current count on `origin` is 7 (`dependabot/npm_and_yarn/*`) + 1 (`resubmit-reviews`), and **every one of them backs a currently-open PR** (the 7 dependabot PRs plus #12) — so by the backlog item's own definition ("no corresponding open PR"), there are zero prunable branches on `origin` right now. Pruning is blocked on the PR triage above, not a standalone task; revisit the branch list once those PRs are closed. (The `aaron-trout/*` branches seen in a naive `git branch -r` are on a separate fork remote added to this local clone for reviewing #72 — not part of `squalrus/merge-bot` and not this repo's to prune.) Separately, `.github/workflows/merge-bot.yml` sets `delete_source_branch: false`, so this repo's own bot-merged PRs (labeled `ready`) don't get branch cleanup for free — worth flipping to `true` if branch buildup becomes a recurring nuisance.
 - ~~No `.gitignore` at all~~ — **fixed 2026-08-26**: added alongside the `node_modules` removal ([v0.4.8](https://github.com/squalrus/merge-bot/pull/81)); currently just ignores `node_modules/`.
 - No linter/formatter config (no ESLint, Prettier, or `.editorconfig`) and no `engines` field in `package.json` pinning a supported Node version for local development.
 - No `SECURITY.md` or `CODEOWNERS`.
@@ -110,10 +113,10 @@ Checked each against the current code (`lib/pull.js`, `lib/config.js`, `index.js
 1. ~~Fix `action.yml` runtime (`node12` → `node20`)~~ — done 2026-08-26.
 2. ~~Reconcile remaining `package.json` fields (name, license) with reality~~ — done 2026-08-26; version was already fixed and guarded.
 3. ~~Replace committed `node_modules` with an `ncc`-bundled `dist/` and a `.gitignore`~~ — done 2026-08-26 ([v0.4.8](https://github.com/squalrus/merge-bot/pull/81)).
-4. Consolidate CI onto one GitHub Actions workflow (`npm test`, not just the new build-check); decide the fate of `azure-pipelines.yml`.
-5. Upgrade `jest` to clear the bulk of `npm audit` findings; upgrade `@actions/core`/`@actions/github` deliberately (breaking API shape change).
-6. Merge #81, then triage the remaining 7 open PRs (close superseded dependency bumps, review #72, resolve #12).
-7. Prune the 22 stale origin branches.
-8. Add `dependabot.yml` so future dependency PRs are scheduled/grouped instead of arriving ad hoc.
+4. ~~Consolidate CI onto one GitHub Actions workflow; decide the fate of `azure-pipelines.yml`~~ — done 2026-08-26: `.github/workflows/test.yml` added, `azure-pipelines.yml` removed.
+5. ~~Upgrade `jest` to clear the bulk of `npm audit` findings; upgrade `@actions/core`/`@actions/github` deliberately~~ — done 2026-08-26 (v0.4.11).
+6. Triage the 9 remaining open PRs (close the 7 superseded dependency bumps, review #72's feature contribution on its merits, resolve #12 close-or-rebase).
+7. Add `dependabot.yml` so future dependency PRs are scheduled/grouped instead of arriving ad hoc.
+8. Revisit stale-branch pruning once #6 lands — currently zero `origin` branches lack an open PR, so there's nothing to prune yet.
 
 These are tracked as individual items in [BACKLOG.md](BACKLOG.md).

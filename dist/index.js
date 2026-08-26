@@ -37056,7 +37056,7 @@ class Pull {
             return false;
         }
 
-        for (let [key, value] of Object.entries(this.reviews)) {
+        for (const value of Object.values(this.reviews)) {
             if (value.state !== "APPROVED") {
                 console.log('merge failed: not all reviews in state of APPROVED');
                 return false;
@@ -37085,13 +37085,13 @@ class Pull {
                         compiled[user] = {
                             date: date,
                             state: state
-                        }
+                        };
                     }
                 } else {
                     compiled[user] = {
                         date: date,
                         state: state
-                    }
+                    };
                 }
             });
         }
@@ -37187,7 +37187,7 @@ const renderMessage = (action, config, pull) => {
 <tr><td>reviewers</td><td>${JSON.stringify(pull.reviews)}</td></tr>
 <tr><td>checks</td><td>${JSON.stringify(pull.checks)}</td></tr>
 </table>`;
-}
+};
 
 /* harmony default export */ const message = (renderMessage);
 

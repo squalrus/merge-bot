@@ -2,6 +2,14 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.14] — 2026-08-26
+
+### Added
+- **ESLint config, `.editorconfig`, and an `engines.node` field.** No linter/formatter config existed, and `package.json` had no guardrail against developing against an unsupported Node version. Added `eslint.config.js` (flat config, ESLint 9.x pinned to the maintenance line since 10.x requires a newer Node patch version than several dev machines have) enforcing the project's existing conventions — 4-space indent, semicolons — plus `no-unused-vars`; fixture payloads under `__mocks__/` are excluded since they deliberately mirror raw JSON webhook shape. `.editorconfig` covers the same basics for editors that read it. `engines.node` is set to `>=20`, matching the `node20` runtime `action.yml` declares. A `lint` script (`npm run lint`) was added and wired into `.github/workflows/test.yml` so lint failures block PRs the same way test failures do, and `CONTRIBUTING.md`/`CLAUDE.md` updated to reference it. (`eslint.config.js`, `.editorconfig`, `package.json`, `.github/workflows/test.yml`, `CONTRIBUTING.md`, `CLAUDE.md`)
+
+### Fixed
+- **Lint violations surfaced by the new config.** Missing semicolons in `lib/pull.js` and `lib/message.js`, an unused loop variable in `lib/pull.js`'s review-compilation logic, and four dead imports left over in `__tests__/pull-canmerge.test.js`. No behavior change. (`lib/pull.js`, `lib/message.js`, `__tests__/pull-canmerge.test.js`)
+
 ## [0.4.13] — 2026-08-26
 
 ### Changed

@@ -36,7 +36,6 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 | [Add dependabot.yml for scheduled dependency updates](#add-dependabotyml-for-scheduled-dependency-updates) | S | M |
 | [Add SECURITY.md](#add-securitymd) | S | M |
 | [Prune stale origin branches](#prune-stale-origin-branches) | S | L |
-| [Add linter/formatter config and an engines field](#add-linterformatter-config-and-an-engines-field) | S | L |
 | [Add CODEOWNERS](#add-codeowners) | S | L |
 | [Rename default branch from master to main](#rename-default-branch-from-master-to-main) | M | L |
 
@@ -90,11 +89,6 @@ No open limitations.
 **Type:** Improvement
 **Why** — Re-checked 2026-08-26: the original "22 branches with no open PR" figure was itself stale — it included local tracking refs for branches already deleted on GitHub. The real current count of unmerged branches on `origin` is 8, and every one of them backs a currently open PR (the 7 dependabot branches plus `resubmit-reviews` for #12) — so by this item's own definition, there's nothing to prune right now.
 **Notes:** Blocked on [Triage the open pull requests](#triage-the-open-pull-requests) landing first — once those PRs are closed, re-run `git fetch --prune && git branch -r --no-merged origin/master` and prune whatever's left without an open PR. Separately, `.github/workflows/merge-bot.yml` sets `delete_source_branch: false`, so this repo's own bot-merged PRs don't get branch cleanup for free — consider flipping to `true` to prevent future buildup.
-
-### Add linter/formatter config and an engines field
-**Type:** Improvement
-**Why** — No ESLint/Prettier/`.editorconfig` config exists, and `package.json` has no `engines` field pinning a supported Node version for local development. Contributors get no automated style signal and no guardrail against developing against an unsupported Node version.
-**Notes:** Add a minimal ESLint (or Prettier) config, and an `engines.node` field matching the runtime `action.yml` declares (currently `node20`). Low urgency — polish/consistency item.
 
 ### Add CODEOWNERS
 **Type:** Improvement

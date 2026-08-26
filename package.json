@@ -1,12 +1,16 @@
 {
   "name": "merge-bot",
-  "version": "0.4.13",
+  "version": "0.4.14",
   "description": "",
   "main": "index.js",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "build": "ncc build index.js -o dist"
+    "build": "ncc build index.js -o dist",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -24,7 +28,10 @@
     "@actions/github": "^9.1.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.9.0",
     "@vercel/ncc": "^0.45.0",
+    "eslint": "^9.39.5",
+    "globals": "^15.9.0",
     "jest": "^30.4.2"
   }
 }

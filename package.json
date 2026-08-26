@@ -1,6 +1,6 @@
 {
   "name": "merge-bot",
-  "version": "0.4.17",
+  "version": "0.4.18",
   "description": "",
   "main": "index.js",
   "type": "module",

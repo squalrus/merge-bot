@@ -2,6 +2,18 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.18] — 2026-08-26
+
+### Changed
+- **`.github/workflows/merge-bot.yml` now also triggers on `issue_comment`.** Prepares this repo's own dogfooding workflow to pick up PR #72's comment-triggered retry behavior once it merges — a comment on a pull request will re-run the merge check (useful for retrying after a transient "Base branch was modified" failure), gated by a job-level `if:` so it's a no-op for comments on plain issues. Since this workflow already points at `squalrus/merge-bot@main`, the trigger becomes fully live automatically once #72 merges; no further change needed here. (`.github/workflows/merge-bot.yml`)
+- **BACKLOG.md's "Remove label / re-request review on commit" entry updated** to reference PR #12 ("Resubmit reviews after push", closed as stale) as prior art for the re-request-review half of that item. (`BACKLOG.md`)
+
+### Fixed
+- **Triaged all 9 open pull requests.** Closed the 7 dependabot bumps (#64, #69, #70, #71, #73, #74, #75) as superseded — each target version was already met, or the package no longer in the tree, following the v0.4.11 dependency upgrade. Closed #12 ("Resubmit reviews after push"), a 7-year-old branch from before the ESM/`octokit.rest.*` rewrite that couldn't be rebased cleanly; its idea lives on in the "Remove label / re-request review on commit" backlog entry. Reviewed #72 on its merits and pushed an update on top of the contributor's original commit (kept intact, credited as co-author) porting it to the current codebase. Only #72 remains open now, pending merge.
+
+### Removed
+- **Stale `origin/resubmit-reviews` branch.** Backed the now-closed #12 and no longer had an open PR; the 7 dependabot branches were already auto-deleted by GitHub when their PRs closed.
+
 ## [0.4.17] — 2026-08-26
 
 ### Added

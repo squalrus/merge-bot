@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.13] — 2026-08-26
+
+### Changed
+- **Tidied the bug report issue template for a GitHub Action.** `.github/ISSUE_TEMPLATE/bug_report.md` was still the unmodified GitHub default, asking reporters for Desktop/Smartphone OS and browser info that doesn't apply to an Action. Replaced with fields relevant to merge-bot: workflow configuration (pinned version, inputs), triggering event, and actual vs. expected behavior. (`.github/ISSUE_TEMPLATE/bug_report.md`)
+
 ## [0.4.12] — 2026-08-26
 
 ### Changed

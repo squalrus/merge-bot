@@ -31,16 +31,13 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 
 ### Improvements
 
-| Title | Effort | Value |
-|---|---|---|
-| [Prune stale origin branches](#prune-stale-origin-branches) | S | L |
+No open improvements.
 
 ### Known issues
 
 | Title | Effort | Value |
 |---|---|---|
 | [Crash on non-PR events (missing pull_request payload)](#crash-on-non-pr-events-missing-pull_request-payload) | S | H |
-| [Triage the open pull requests](#triage-the-open-pull-requests) | S | M |
 | [Not detecting team-requested reviews](#not-detecting-team-requested-reviews) | S | M |
 
 ### Limitations
@@ -61,20 +58,10 @@ No open limitations.
 **Why** — Confirmed reproducible crash reported in [#77](https://github.com/squalrus/merge-bot/issues/77): `Pull`'s constructor ([lib/pull.js](lib/pull.js#L3)) does `payload.pull_request.labels.map(...)` unconditionally. A workflow triggered on `push` (in addition to `pull_request`, as the reporter's is) delivers a payload with no `pull_request` object at all, so this throws on every push. Real user impact today, not a hypothetical — flagged by the audit as the single highest-priority item outstanding.
 **Notes:** Guard on `github.context.payload.pull_request` existing before constructing `Pull` in [index.js](index.js#L16); no-op cleanly on non-PR events instead of crashing. Small, self-contained fix.
 
-### Triage the open pull requests
-**Type:** Known issue
-**Why** — 9 PRs are open (re-checked 2026-08-26 via `gh pr list`), ranging from 2019 (your own, conflicting) to 2023 (dependabot). #68 already auto-closed itself once its advisory no longer applied post-v0.4.11 — the remaining 7 dependabot bumps (#64, #69, #70, #71, #73, #74, #75) are all now CONFLICTING and individually superseded by the v0.4.11 `jest`/`@actions/*` upgrade. One real community feature contribution ([#72](https://github.com/squalrus/merge-bot/pull/72)) has never been reviewed.
-**Notes:** Close #64, #69, #70, #71, #73, #74, #75 in favor of v0.4.11. Review #72 ("make the action work with pull request comment event") on its merits. Decide whether to rebase or close #12 ("Resubmit reviews after push"), your own branch, currently conflicting with `main`. Title deliberately drops the PR count — it kept drifting out of sync as PRs closed on their own.
-
 ### Not detecting team-requested reviews
 **Type:** Bug
 **Why** — Reported in [#37](https://github.com/squalrus/merge-bot/issues/37). [Pull's constructor](lib/pull.js#L10) reads only `payload.pull_request.requested_reviewers`, never `requested_teams` — a CODEOWNERS rule assigning a *team* (as in the original report) won't register as a pending reviewer, so the bot can consider reviews complete while a team review is genuinely still outstanding.
 **Notes:** Add `requested_teams` handling alongside `requested_reviewers` in `Pull`'s review-compilation logic. Likely compounds with [Re-trigger Action when checks complete](#re-trigger-action-when-checks-complete) (a stale payload at merge time) — worth fixing together since the original report probably hit both.
-
-### Prune stale origin branches
-**Type:** Improvement
-**Why** — Re-checked 2026-08-26: the original "22 branches with no open PR" figure was itself stale — it included local tracking refs for branches already deleted on GitHub. The real current count of unmerged branches on `origin` is 8, and every one of them backs a currently open PR (the 7 dependabot branches plus `resubmit-reviews` for #12) — so by this item's own definition, there's nothing to prune right now.
-**Notes:** Blocked on [Triage the open pull requests](#triage-the-open-pull-requests) landing first — once those PRs are closed, re-run `git fetch --prune && git branch -r --no-merged origin/main` and prune whatever's left without an open PR. Separately, `.github/workflows/merge-bot.yml` sets `delete_source_branch: false`, so this repo's own bot-merged PRs don't get branch cleanup for free — consider flipping to `true` to prevent future buildup.
 
 ### Re-trigger Action when checks complete
 **Type:** Feature
@@ -104,4 +91,4 @@ No open limitations.
 ### Remove label / re-request review on commit
 **Type:** Feature
 **Why** — Reported in [#7](https://github.com/squalrus/merge-bot/issues/7). No label-removal or re-review-request logic exists anywhere in `index.js`/`lib/`. Requested so pushing new commits to a PR could automatically remove a "ready" label or re-request reviews, preventing a stale approval from letting an unreviewed change merge.
-**Notes:** Would trigger on `synchronize` (already a `merge-bot.yml` trigger) and call `issues.removeLabel` and/or `pulls.requestReviewers` conditionally. Worth checking whether standard GitHub branch protection settings already cover part of this without code changes.
+**Notes:** Would trigger on `push`/`synchronize` (already a `merge-bot.yml` trigger) and call `issues.removeLabel` and/or `octokit.rest.pulls.requestReviewers` conditionally. Worth checking whether standard GitHub branch protection settings already cover part of this without code changes. [PR #12](https://github.com/squalrus/merge-bot/pull/12) ("Resubmit reviews after push", closed as stale 2026-08-26) attempted the re-request-review half of this in 2019 — its approach (re-request from anyone in `pull.reviews` on a `push` event) is a reasonable starting point, but the branch itself predates the ESM/`octokit.rest.*` rewrite and can't be rebased cleanly; reimplement fresh against current `lib/pull.js` rather than resurrecting it.

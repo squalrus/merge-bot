@@ -45,13 +45,13 @@ Dependabot security-alert PRs (#64, #69–#75, open since 2021–2023) — #68 a
 
 ## CI/CD pipelines
 
-**Fixed 2026-08-26:** `azure-pipelines.yml` has been deleted and `.github/workflows/test.yml` added (`npm ci && npm test` on `actions/setup-node@v4` with `node-version: 20`, triggered on PRs to `master`), matching the pattern already used by `build-check.yml`. Verified locally: 50/50 tests pass under Node 20. A status badge was added to the README. This closes the backlog item "Consolidate CI onto a single GitHub Actions workflow."
+**Fixed 2026-08-26:** `azure-pipelines.yml` has been deleted and `.github/workflows/test.yml` added (`npm ci && npm test` on `actions/setup-node@v4` with `node-version: 20`, triggered on PRs to `main`), matching the pattern already used by `build-check.yml`. Verified locally: 50/50 tests pass under Node 20. A status badge was added to the README. This closes the backlog item "Consolidate CI onto a single GitHub Actions workflow."
 
 Four systems now exist on GitHub Actions (no more Azure dependency):
 
-- **`.github/workflows/test.yml`** *(new)* — runs `npm test` on PRs to `master`, Node 20. This is the CI test signal that was previously missing entirely (the old Azure pipeline was the only thing running `npm test`, and it was broken — see history below).
-- **`.github/workflows/merge-bot.yml`** — the action *using itself* (`uses: squalrus/merge-bot@master`) to manage this repo's own PRs. Runs with `reviewers: false` and `checks_enabled: false`, meaning label alone (`ready`) is sufficient to auto-merge, and `delete_source_branch: false` — this repo's own bot-merged PRs do **not** get their branches deleted, which is one contributor to the stale-branch count below (though not the dominant one currently).
-- **`.github/workflows/build-check.yml`** — added in [v0.4.8](https://github.com/squalrus/merge-bot/pull/81). Rebuilds `dist/` on every PR to `master` and fails if it doesn't match a fresh `npm run build`.
+- **`.github/workflows/test.yml`** *(new)* — runs `npm test` on PRs to `main`, Node 20. This is the CI test signal that was previously missing entirely (the old Azure pipeline was the only thing running `npm test`, and it was broken — see history below).
+- **`.github/workflows/merge-bot.yml`** — the action *using itself* (`uses: squalrus/merge-bot@main`) to manage this repo's own PRs. Runs with `reviewers: false` and `checks_enabled: false`, meaning label alone (`ready`) is sufficient to auto-merge, and `delete_source_branch: false` — this repo's own bot-merged PRs do **not** get their branches deleted, which is one contributor to the stale-branch count below (though not the dominant one currently).
+- **`.github/workflows/build-check.yml`** — added in [v0.4.8](https://github.com/squalrus/merge-bot/pull/81). Rebuilds `dist/` on every PR to `main` and fails if it doesn't match a fresh `npm run build`.
 - **`.github/workflows/version-check.yml`** — added alongside the `package.json` version fix. Fails a tag push if it doesn't match `package.json`'s version.
 
 **Retired:** `azure-pipelines.yml` (ran `npm install -g jest --save-dev && npm install && npm test` on **Node 10.x**, EOL April 2021, triggered on PRs to `master`). It was actively broken as of 2026-08-26: the global `npm install -g jest` step pulled Jest 30.x, whose `jest-resolve` dependency (`unrs-resolver`, a native module) fails its postinstall script under Node 10.x. No fix was applied — it was deleted outright, since `test.yml` supersedes it and the Node 10.x pin was obsolete regardless.

@@ -4,7 +4,7 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 
 ## Shipping a backlog item
 
-1. Branch off `master` named for the target version (`vX.Y.Z`). Never commit directly to `master`.
+1. Branch off `main` named for the target version (`vX.Y.Z`). Never commit directly to `main`.
 2. Move the entry to CHANGELOG.md with a version block (date, classification, user-facing summary). Remove it from here.
 3. Update docs where reality changed (README, CONTRIBUTING, etc.).
 4. Pick the version by semver: feature → minor; bug / improvement / cleanup → patch; breaking → major.
@@ -35,7 +35,6 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 |---|---|---|
 | [Add dependabot.yml for scheduled dependency updates](#add-dependabotyml-for-scheduled-dependency-updates) | S | M |
 | [Prune stale origin branches](#prune-stale-origin-branches) | S | L |
-| [Rename default branch from master to main](#rename-default-branch-from-master-to-main) | M | L |
 
 ### Known issues
 
@@ -55,7 +54,7 @@ No open limitations.
 
 ### Maintain a floating major-version tag
 **Type:** Feature
-**Why** — Consumers currently either pin an exact tag (`@v0.4.5`) or float on `@master`. A moving major tag (e.g. `v0`) lets them pin `squalrus/merge-bot@v0` and pick up patch/minor releases automatically without tracking every release — the common convention for GitHub Actions (see `actions/checkout@v4`, etc.).
+**Why** — Consumers currently either pin an exact tag (`@v0.4.5`) or float on `@main`. A moving major tag (e.g. `v0`) lets them pin `squalrus/merge-bot@v0` and pick up patch/minor releases automatically without tracking every release — the common convention for GitHub Actions (see `actions/checkout@v4`, etc.).
 **Notes:** On release, after `npm version` creates the exact tag, force-move the major tag to point at the new commit and push it: `git tag -f v0 <new-tag> && git push origin v0 --force`. Add this as a step in [CONTRIBUTING.md](CONTRIBUTING.md)'s release process, ideally automated in a release workflow rather than manual. Consider updating the README's example usage to recommend pinning the major tag instead of an exact version once this exists.
 
 ### Crash on non-PR events (missing pull_request payload)
@@ -66,7 +65,7 @@ No open limitations.
 ### Triage the open pull requests
 **Type:** Known issue
 **Why** — 9 PRs are open (re-checked 2026-08-26 via `gh pr list`), ranging from 2019 (your own, conflicting) to 2023 (dependabot). #68 already auto-closed itself once its advisory no longer applied post-v0.4.11 — the remaining 7 dependabot bumps (#64, #69, #70, #71, #73, #74, #75) are all now CONFLICTING and individually superseded by the v0.4.11 `jest`/`@actions/*` upgrade. One real community feature contribution ([#72](https://github.com/squalrus/merge-bot/pull/72)) has never been reviewed.
-**Notes:** Close #64, #69, #70, #71, #73, #74, #75 in favor of v0.4.11. Review #72 ("make the action work with pull request comment event") on its merits. Decide whether to rebase or close #12 ("Resubmit reviews after push"), your own branch, currently conflicting with `master`. Title deliberately drops the PR count — it kept drifting out of sync as PRs closed on their own.
+**Notes:** Close #64, #69, #70, #71, #73, #74, #75 in favor of v0.4.11. Review #72 ("make the action work with pull request comment event") on its merits. Decide whether to rebase or close #12 ("Resubmit reviews after push"), your own branch, currently conflicting with `main`. Title deliberately drops the PR count — it kept drifting out of sync as PRs closed on their own.
 
 ### Not detecting team-requested reviews
 **Type:** Bug
@@ -81,12 +80,7 @@ No open limitations.
 ### Prune stale origin branches
 **Type:** Improvement
 **Why** — Re-checked 2026-08-26: the original "22 branches with no open PR" figure was itself stale — it included local tracking refs for branches already deleted on GitHub. The real current count of unmerged branches on `origin` is 8, and every one of them backs a currently open PR (the 7 dependabot branches plus `resubmit-reviews` for #12) — so by this item's own definition, there's nothing to prune right now.
-**Notes:** Blocked on [Triage the open pull requests](#triage-the-open-pull-requests) landing first — once those PRs are closed, re-run `git fetch --prune && git branch -r --no-merged origin/master` and prune whatever's left without an open PR. Separately, `.github/workflows/merge-bot.yml` sets `delete_source_branch: false`, so this repo's own bot-merged PRs don't get branch cleanup for free — consider flipping to `true` to prevent future buildup.
-
-### Rename default branch from master to main
-**Type:** Cleanup
-**Why** — This repo's default branch is still `master`; most tooling, templates, and the backlog/changelog skills used here default to `main`. Consistency reduces the friction of copy-pasting commands and following generic docs/skill instructions verbatim.
-**Notes:** GitHub has a built-in "rename branch" tool (repo Settings → Branches) that updates open PRs, branch protection rules, and redirects `git push`/`git pull` on the old name automatically — safer than a manual rename. After renaming, update every reference to `master` across the repo: `.github/workflows/merge-bot.yml` if it targets a branch, and the docs that mention it by name (README.md, CONTRIBUTING.md, CLAUDE.md, BACKLOG.md, AUDIT.md, this file). Also confirm the `squalrus/merge-bot@master` floating-branch reference some consumers may use still resolves (GitHub's redirect handles this, but worth a spot check). Coordinate with anyone holding local clones or open forks/PRs, since their local `master` won't auto-rename.
+**Notes:** Blocked on [Triage the open pull requests](#triage-the-open-pull-requests) landing first — once those PRs are closed, re-run `git fetch --prune && git branch -r --no-merged origin/main` and prune whatever's left without an open PR. Separately, `.github/workflows/merge-bot.yml` sets `delete_source_branch: false`, so this repo's own bot-merged PRs don't get branch cleanup for free — consider flipping to `true` to prevent future buildup.
 
 ### Re-trigger Action when checks complete
 **Type:** Feature

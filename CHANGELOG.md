@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.16] — 2026-08-26
+
+### Changed
+- **Renamed the default branch from `master` to `main`.** Renamed on GitHub (Settings → Branches), which auto-updated open PRs, branch protection, and old-name redirects. Updated every remaining `master` reference across the repo: `.github/workflows/test.yml` and `build-check.yml` now trigger on PRs to `main`; `.github/workflows/merge-bot.yml`'s self-referential `uses: squalrus/merge-bot@main` updated; CONTRIBUTING.md, CLAUDE.md, AUDIT.md, and BACKLOG.md updated wherever they described current state or gave branch-off instructions. Historical references in CHANGELOG.md and AUDIT.md's retired-pipeline note were left as-is since they describe the past accurately. (`.github/workflows/test.yml`, `.github/workflows/build-check.yml`, `.github/workflows/merge-bot.yml`, `CONTRIBUTING.md`, `CLAUDE.md`, `AUDIT.md`, `BACKLOG.md`)
+
 ## [0.4.15] — 2026-08-26
 
 ### Added

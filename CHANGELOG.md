@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.10] — 2026-08-26
+
+### Changed
+- **`package.json` metadata reconciled with reality.** `name` was still the placeholder `"github-actions"`; now `"merge-bot"`, matching the repo. `license` was `"ISC"`, which didn't match the actual MIT `LICENSE` file; now `"MIT"`. (`package.json`, `package-lock.json`)
+
 ## [0.4.9] — 2026-08-26
 
 ### Added

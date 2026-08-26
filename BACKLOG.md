@@ -34,9 +34,7 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 | Title | Effort | Value |
 |---|---|---|
 | [Add dependabot.yml for scheduled dependency updates](#add-dependabotyml-for-scheduled-dependency-updates) | S | M |
-| [Add SECURITY.md](#add-securitymd) | S | M |
 | [Prune stale origin branches](#prune-stale-origin-branches) | S | L |
-| [Add CODEOWNERS](#add-codeowners) | S | L |
 | [Rename default branch from master to main](#rename-default-branch-from-master-to-main) | M | L |
 
 ### Known issues
@@ -80,20 +78,10 @@ No open limitations.
 **Why** — There's no `.github/dependabot.yml`, yet Dependabot has been opening PRs (via GitHub's automatic security updates). Without a config there's no schedule, grouping, or policy, which is part of why 6+ dependency PRs sat open for years.
 **Notes:** Add a `version-updates` config for the `npm` ecosystem with a weekly/monthly schedule and grouping (e.g. group all dev-dependency bumps together) so future PRs arrive in batches instead of one-off drips.
 
-### Add SECURITY.md
-**Type:** Improvement
-**Why** — A SECURITY.md file establishes a security policy and responsible disclosure process (how to report vulnerabilities privately, response timeline expectations), which is standard practice for open-source projects, builds trust with contributors, and GitHub displays it prominently in the repository's Security tab. The audit flagged this as missing.
-**Notes:** Should cover: how to report security vulnerabilities (GitHub Security Advisory or email), expected response timeline, which versions are currently supported for security patches, and a statement that the project is MIT-licensed. Keep it brief and actionable.
-
 ### Prune stale origin branches
 **Type:** Improvement
 **Why** — Re-checked 2026-08-26: the original "22 branches with no open PR" figure was itself stale — it included local tracking refs for branches already deleted on GitHub. The real current count of unmerged branches on `origin` is 8, and every one of them backs a currently open PR (the 7 dependabot branches plus `resubmit-reviews` for #12) — so by this item's own definition, there's nothing to prune right now.
 **Notes:** Blocked on [Triage the open pull requests](#triage-the-open-pull-requests) landing first — once those PRs are closed, re-run `git fetch --prune && git branch -r --no-merged origin/master` and prune whatever's left without an open PR. Separately, `.github/workflows/merge-bot.yml` sets `delete_source_branch: false`, so this repo's own bot-merged PRs don't get branch cleanup for free — consider flipping to `true` to prevent future buildup.
-
-### Add CODEOWNERS
-**Type:** Improvement
-**Why** — No `CODEOWNERS` file exists, so there's no automatic reviewer assignment on PRs. Flagged by the audit alongside the (now-tracked) missing SECURITY.md as a repo-hygiene gap.
-**Notes:** Add `.github/CODEOWNERS` designating the repo owner as default reviewer for all paths (`* @squalrus`), or scope more granularly if ownership ever varies by directory.
 
 ### Rename default branch from master to main
 **Type:** Cleanup

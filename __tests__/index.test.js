@@ -155,6 +155,22 @@ test('pull request missing a required label is neither merged nor commented on',
     expect(core.setFailed).not.toHaveBeenCalled();
 });
 
+test('checks are requested by head SHA, not branch name', async () => {
+    // a branch name only resolves within the repo it lives in; for a fork
+    // PR the head branch exists on the fork, not the base repo, so
+    // checks.listForRef must be queried by the (globally resolvable) SHA
+    const octokit = makeOctokit();
+    await runIndex({
+        inputs: { labels: '' },
+        payload: { action: 'synchronize', ...payloadFork },
+        octokit
+    });
+
+    expect(octokit.rest.checks.listForRef).toHaveBeenCalledWith(expect.objectContaining({
+        ref: '05ca724d27c4fae27b402212182b64fda77040b5'
+    }));
+});
+
 test('an API failure is reported via core.setFailed instead of throwing', async () => {
     const octokit = makeOctokit({
         pulls: {

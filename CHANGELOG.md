@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.19] — 2026-08-26
+
+### Fixed
+- **Checks lookup failed for pull requests from forks.** [index.js](index.js#L33) queried `checks.listForRef` using the head *branch name*, which only resolves within the repo that branch lives in — for a fork PR the branch lives in the fork, not the base repo, so the base repo's API 404s with "No commit found for SHA: `<branch>`". Surfaced by this repo's own dogfooding `Merge` workflow failing on PR #72 (`umegaya/merge-bot:master`). Now queries by the head commit SHA instead, which resolves regardless of which repo the branch physically lives in. (`index.js`)
+
 ## [0.4.18] — 2026-08-26
 
 ### Changed

@@ -1,9 +1,9 @@
-const core = require('@actions/core');
-const github = require('@actions/github');
+import * as core from '@actions/core';
+import * as github from '@actions/github';
 
-const Config = require('./lib/config')
-const Pull = require('./lib/pull');
-const renderMessage = require('./lib/message');
+import Config from './lib/config.js';
+import Pull from './lib/pull.js';
+import renderMessage from './lib/message.js';
 
 async function run() {
     try {
@@ -17,17 +17,17 @@ async function run() {
         console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
 
         const token = core.getInput('GITHUB_TOKEN');
-        const octokit = new github.getOctokit(token);
+        const octokit = github.getOctokit(token);
 
         console.log(`[info] get reviews`);
-        const reviews = await octokit.pulls.listReviews({
+        const reviews = await octokit.rest.pulls.listReviews({
             owner: pull.owner,
             repo: pull.repo,
             pull_number: pull.pull_number
         });
 
         console.log(`[info] get checks`);
-        const checks = await octokit.checks.listForRef({
+        const checks = await octokit.rest.checks.listForRef({
             owner: pull.owner,
             repo: pull.repo,
             ref: pull.branch_name
@@ -42,7 +42,7 @@ async function run() {
         if (config.test_mode) {
 
             // comment in test mode
-            await octokit.issues.createComment({
+            await octokit.rest.issues.createComment({
                 owner: pull.owner,
                 repo: pull.repo,
                 issue_number: pull.pull_number,
@@ -54,7 +54,7 @@ async function run() {
 
                 // merge the pull request
                 console.log(`[info] merge start`);
-                await octokit.pulls.merge({
+                await octokit.rest.pulls.merge({
                     owner: pull.owner,
                     repo: pull.repo,
                     pull_number: pull.pull_number,
@@ -68,7 +68,7 @@ async function run() {
                     } else {
                         // delete the branch
                         console.log(`[info] delete start`);
-                        await octokit.git.deleteRef({
+                        await octokit.rest.git.deleteRef({
                             owner: pull.owner,
                             repo: pull.repo,
                             ref: pull.ref

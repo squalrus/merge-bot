@@ -28,9 +28,7 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 | Title | Effort | Value |
 |---|---|---|
 | [Consolidate CI onto a single GitHub Actions workflow](#consolidate-ci-onto-a-single-github-actions-workflow) | M | H |
-| [Upgrade jest to clear most npm audit findings](#upgrade-jest-to-clear-most-npm-audit-findings) | S | M |
 | [Add dependabot.yml for scheduled dependency updates](#add-dependabotyml-for-scheduled-dependency-updates) | S | M |
-| [Upgrade @actions/core and @actions/github deliberately](#upgrade-actionscore-and-actionsgithub-deliberately) | M | M |
 | [Prune stale origin branches](#prune-stale-origin-branches) | S | L |
 | [Rename default branch from master to main](#rename-default-branch-from-master-to-main) | M | L |
 | [Tidy issue templates for a GitHub Action](#tidy-issue-templates-for-a-github-action) | S | L |
@@ -57,22 +55,12 @@ No open limitations.
 ### Triage the 7 open pull requests
 **Type:** Known issue
 **Why** — 7 PRs are open, ranging from 2019 (your own, now conflicting) to 2023 (dependabot). Several dependabot bumps are individually superseded by a single dependency-upgrade pass, and one real community feature contribution (#72) has never been reviewed.
-**Notes:** Close #68, #69, #70, #71, #73, #74, #75 in favor of one consolidated `jest`/`@actions/*` upgrade PR (see [Upgrade jest](#upgrade-jest-to-clear-most-npm-audit-findings) and [Upgrade @actions/core and @actions/github](#upgrade-actionscore-and-actionsgithub-deliberately)). Review #72 ("make the action work with pull request comment event") on its merits. Decide whether to rebase or close #12 ("Resubmit reviews after push"), which is your own branch and currently conflicting with `master`.
-
-### Upgrade jest to clear most npm audit findings
-**Type:** Improvement
-**Why** — `jest` is pinned at 26.6.3 (latest 30.4.2). Most of the 56 `npm audit` findings (Babel, `ws`, etc.) come from this dev-dependency's transitive tree, not from anything shipped in the action itself.
-**Notes:** Bump `jest` to latest, run `npm test`, fix any breaking config/API changes (Jest 27+ changed some defaults, e.g. test environment). Re-run `npm audit` after to confirm the reduction.
+**Notes:** Close #68, #69, #70, #71, #73, #74, #75 in favor of v0.4.11 (which consolidates the `jest` and `@actions/*` upgrades). These dependabot security alerts will auto-close once GitHub re-scans the main branch; close them manually if needed. Review #72 ("make the action work with pull request comment event") on its merits. Decide whether to rebase or close #12 ("Resubmit reviews after push"), which is your own branch and currently conflicting with `master`.
 
 ### Add dependabot.yml for scheduled dependency updates
 **Type:** Improvement
 **Why** — There's no `.github/dependabot.yml`, yet Dependabot has been opening PRs (via GitHub's automatic security updates). Without a config there's no schedule, grouping, or policy, which is part of why 6+ dependency PRs sat open for years.
 **Notes:** Add a `version-updates` config for the `npm` ecosystem with a weekly/monthly schedule and grouping (e.g. group all dev-dependency bumps together) so future PRs arrive in batches instead of one-off drips.
-
-### Upgrade @actions/core and @actions/github deliberately
-**Type:** Improvement
-**Why** — `@actions/core` is 2 majors behind (1.2.6 → 3.0.1, includes a moderate CVE fix); `@actions/github` is 5 majors behind (4.0.0 → 9.1.1).
-**Notes:** Not a drop-in bump — `index.js` currently calls REST methods directly on the octokit client (`octokit.pulls.listReviews`, `octokit.checks.listForRef`) rather than under `.rest.*`, which is the v4-era shape. Upgrading requires updating those call sites and re-running the full test suite.
 
 ### Consolidate CI onto a single GitHub Actions workflow
 **Type:** Improvement

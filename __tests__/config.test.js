@@ -1,15 +1,15 @@
-const Config = require('../lib/config');
-const CoreDefault = require('../__mocks__/config/core-default');
-const CoreComplex = require('../__mocks__/config/core-complex');
-const CoreNoLabels = require('../__mocks__/config/core-no-labels');
+import Config from '../lib/config.js';
+import CoreDefault from '../__mocks__/config/core-default.js';
+import CoreComplex from '../__mocks__/config/core-complex.js';
+import CoreNoLabels from '../__mocks__/config/core-no-labels.js';
 
 const coreDefault = new CoreDefault();
 const coreComplex = new CoreComplex();
 const coreNoLabels = new CoreNoLabels();
 
-const configDefault = require('../__mocks__/config/config-default');
-const configComplex = require('../__mocks__/config/config-complex');
-const configNoLabels = require('../__mocks__/config/config-no-labels');
+import configDefault from '../__mocks__/config/config-default.js';
+import configComplex from '../__mocks__/config/config-complex.js';
+import configNoLabels from '../__mocks__/config/config-no-labels.js';
 
 test('config constructor, default settings', () => {
     const config = new Config(coreDefault);

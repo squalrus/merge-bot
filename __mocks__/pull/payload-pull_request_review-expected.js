@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "labels": [],
     "owner": "Codertocat",
     "pull_number": 2,

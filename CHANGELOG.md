@@ -2,6 +2,17 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.11] — 2026-08-26
+
+### Changed
+- **Migrated from CommonJS to ES modules.** `@actions/core@3` and `@actions/github@9` are ESM-only (no CommonJS export), whereas v1/v4 supported both. The codebase (`index.js`, `lib/`, `__tests__/`, `__mocks__/`) has been converted from `require()`/`module.exports` to `import`/`export`. `package.json` now declares `"type": "module"`. Jest runs with `--experimental-vm-modules` to support ESM test files. `@vercel/ncc` was upgraded to 0.45.0 to bundle ESM correctly. (`package.json`, `index.js`, `lib/`, `__tests__/`, `__mocks__/`, `dist/`)
+- **Upgraded `jest` from 26.6.3 to 30.4.2.** Most npm audit findings were in jest's transitive dependency tree (Babel, `ws`, `jsdom`, etc.), not in production code. The new jest brings those transitive deps up to date. (`package.json`, `package-lock.json`)
+- **Upgraded production dependencies.** `@actions/core` from 1.2.6 to 3.0.1 (includes a moderate security advisory fix) and `@actions/github` from 4.0.0 to 9.1.1. Octokit API call sites in `index.js` updated to use the `.rest.*` namespace (v9 requires this shape). All 50 tests pass under the new versions. (`package.json`, `index.js`, `package-lock.json`)
+- **Upgraded `@vercel/ncc` from 0.38.4 to 0.45.0** to support ESM bundling. (`.json`)
+
+### Fixed
+- **npm audit: 54 vulnerabilities → 0.** All security advisories are now resolved. (`package-lock.json`)
+
 ## [0.4.10] — 2026-08-26
 
 ### Changed

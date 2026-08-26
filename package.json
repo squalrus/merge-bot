@@ -1,10 +1,11 @@
 {
   "name": "merge-bot",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "build": "ncc build index.js -o dist"
   },
   "repository": {
@@ -19,11 +20,11 @@
   },
   "homepage": "https://github.com/squalrus/merge-bot#readme",
   "dependencies": {
-    "@actions/core": "^1.2.6",
-    "@actions/github": "^4.0.0"
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1"
   },
   "devDependencies": {
-    "@vercel/ncc": "^0.38.4",
-    "jest": "^26.6.3"
+    "@vercel/ncc": "^0.45.0",
+    "jest": "^30.4.2"
   }
 }

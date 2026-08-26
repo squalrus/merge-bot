@@ -12,9 +12,9 @@ The action works and its test suite passes, but the project has had no code chan
 |---|---|
 | Tests | ✅ Passing (50/50), 100% statement/branch coverage across `index.js` and `lib/` (was untested for `index.js` and had several dark branches before v0.4.9) |
 | Action runtime | ✅ Fixed — now declares `node20` |
-| Dependencies | 🟠 Multiple majors behind, security advisories open |
+| Dependencies | ✅ Fixed — jest 26→30, @actions/core 1→3, @actions/github 4→9; `npm audit` 54 vulnerabilities → 0 |
 | CI/CD | 🟠 Split across two unmonitored systems, one on EOL Node; a `dist/` staleness check is now in place |
-| Open PRs | 🟠 8 open (incl. the `v0.4.8` fix PR above), oldest from 2019 |
+| Open PRs | 🟠 7 open (down from 8), oldest from 2019 |
 | Open issues | 🟠 8 open, oldest from 2019; checked against current code — 7 of 8 describe gaps that still exist |
 | Repo hygiene | ✅ Fixed — `node_modules` no longer committed, now bundled via `ncc`; 22 stale branches remain |
 | Docs | 🟡 README solid but no CONTRIBUTING/CLAUDE/SECURITY |
@@ -28,23 +28,26 @@ The action works and its test suite passes, but the project has had no code chan
 
 ## Dependency / upgrade status
 
-Prod dependencies (`npm outdated`):
+Prod dependencies — **fixed in v0.4.11** ([released 2026-08-26](https://github.com/squalrus/merge-bot/compare/v0.4.10...v0.4.11)):
 
-| Package | Current | Latest | Notes |
+| Package | Old | New | Notes |
 |---|---|---|---|
-| `@actions/core` | 1.2.6 | 3.0.1 | Two majors behind; current version has a moderate advisory ([GHSA-7r3h-m5j6-3q42](https://github.com/advisories/GHSA-7r3h-m5j6-3q42)) fixed by upgrading. |
-| `@actions/github` | 4.0.0 | 9.1.1 | Five majors behind. `index.js` calls REST methods directly on the octokit client (e.g. `octokit.pulls.listReviews`) rather than under `.rest.*`, which is the v4-era API shape — upgrading is a breaking change for this code, not a drop-in bump. |
-| `jest` (dev) | 26.6.3 | 30.4.2 | Four majors behind. Most of the `npm audit` noise (Babel, `ws`, etc.) comes from this dependency's transitive tree, not from anything shipped in the action itself. |
+| `@actions/core` | 1.2.6 | 3.0.1 | **Upgraded.** Old version had a moderate advisory ([GHSA-7r3h-m5j6-3q42](https://github.com/advisories/GHSA-7r3h-m5j6-3q42)). No code changes required (API stable). |
+| `@actions/github` | 4.0.0 | 9.1.1 | **Upgraded.** Octokit call sites in `index.js` updated from direct method calls (e.g. `octokit.pulls.listReviews`) to `.rest.*` namespace (v5+/v9 requires this shape). |
+| `jest` (dev) | 26.6.3 | 30.4.2 | **Upgraded.** Bulk of `npm audit` findings (Babel, `ws`, `jsdom`, etc.) resolved. Jest 27+ config changes applied (test environment defaults, etc.). |
+| `@vercel/ncc` (dev) | 0.38.4 | 0.45.0 | **Upgraded** to support ESM bundling (required because prod dependencies are now ESM-only). |
 
-`npm audit` totals (re-checked 2026-08-26): **54 vulnerabilities** (6 critical, 15 high, 32 moderate, 1 low) — drifted slightly from the previous count as upstream advisories shift, not from anything changed in this repo. The prod-facing surface is small (`@actions/core`, `@actions/github`, and their transitive deps); the bulk of the critical/high findings are in the `jest` 26 dev toolchain and would clear substantially by upgrading `jest` alone. As of [v0.4.8](https://github.com/squalrus/merge-bot/pull/81), the dev-toolchain findings no longer matter for what actually *runs*: `dist/index.js` is bundled with `@vercel/ncc`, which only pulls in `dependencies`, so `jest`/Babel/etc. never ship in the action regardless of this audit's local `npm audit` numbers. Upgrading `jest` is still worth doing for local dev hygiene, just no longer a runtime security question.
+**ESM migration:** `@actions/core@3` and `@actions/github@9` export only ESM (`"type": "module"`), no CommonJS fallback. The entire codebase (`index.js`, `lib/`, tests, mocks) was converted from `require()`/`module.exports` to `import`/`export` to match. `package.json` declares `"type": "module"`. Jest runs with `--experimental-vm-modules` to support ESM test modules. This is a breaking change for any direct consumers of the source code (the npm package is not published; consumers import the bundled action via GitHub Actions only).
 
-No `.github/dependabot.yml` exists in the repo, yet Dependabot has opened PRs (#68–#75) — this is GitHub's automatic security-update behavior, not a configured `version-updates` schedule. Without a config file there's no grouping, no schedule, and no policy for how these PRs get triaged, which is consistent with 6 of them sitting open since 2021–2023.
+`npm audit` totals (re-checked 2026-08-26): **0 vulnerabilities** — down from 54. As of v0.4.8, dev-dependency advisories don't affect runtime anyway (`dist/index.js` bundles only production dependencies via `@vercel/ncc`), but clearing the local `npm audit` score improves CI/CD signaling and local dev hygiene.
+
+Dependabot security-alert PRs (#68–#75, open since 2021–2023) — most will auto-close as GitHub re-scans the default branch after this merge and finds the advisories no longer apply. No `.github/dependabot.yml` exists (yet), so no version-updates schedule; the backlog has an item to add one.
 
 ## CI/CD pipelines
 
 Three separate systems exist, still not consolidated:
 
-- **`azure-pipelines.yml`** — runs `npm install -g jest --save-dev && npm install && npm test` on `pool: ubuntu-latest`, pinned to **Node 10.x** (EOL April 2021). Triggers on PRs to `master`. **Confirmed active and currently broken (2026-08-26):** the global `jest` install pulls latest Jest (30.x), whose `jest-resolve` now depends on `unrs-resolver`, a native module whose postinstall fails under Node 10.x — every run currently errors before tests even execute. There is no badge or reference to it from the README. See the backlog item for the fix.
+- **`azure-pipelines.yml`** — runs `npm install -g jest --save-dev && npm install && npm test` on `pool: ubuntu-latest`, pinned to **Node 10.x** (EOL April 2021). Triggers on PRs to `master`. **Status update (v0.4.11):** The earlier Jest 30 / `unrs-resolver` postinstall failure on Node 10.x is no longer a blocker for the action itself (dev dependencies don't ship in `dist/`), but the pipeline's own test step still fails if triggered. The underlying Node 10.x pin is obsolete regardless — see the backlog item to consolidate CI onto a single GitHub Actions workflow instead.
 - **`.github/workflows/merge-bot.yml`** — this is the action *using itself* (`uses: squalrus/merge-bot@master`) to manage this repo's own PRs. It runs with `reviewers: false` and `checks_enabled: false`, meaning label alone (`ready`) is sufficient to auto-merge and delete branches on this repo. There is no separate GitHub Actions workflow that runs `npm test` on PRs — test execution depends entirely on the Azure pipeline being healthy.
 - **`.github/workflows/build-check.yml`** — added in [v0.4.8](https://github.com/squalrus/merge-bot/pull/81). Rebuilds `dist/` on every PR to `master` and fails if it doesn't match a fresh `npm run build`, so the committed bundle can't drift from `index.js`/`lib/`. This doesn't run `npm test` — it only guards the build artifact, so the "no working CI test signal on PRs" gap below is unchanged by it.
 

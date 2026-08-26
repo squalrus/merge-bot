@@ -1,18 +1,18 @@
-const Config = require('../lib/config');
-const CoreDefault = require('../__mocks__/config/core-default');
+import Config from '../lib/config.js';
+import CoreDefault from '../__mocks__/config/core-default.js';
 const coreDefault = new CoreDefault();
 
-const CoreNoLabels = require('../__mocks__/config/core-no-labels');
+import CoreNoLabels from '../__mocks__/config/core-no-labels.js';
 const coreNoLabels = new CoreNoLabels();
 
-const Pull = require('../lib/pull');
-const payloadDefault = require('../__mocks__/pull/payload-default');
-const payloadReviewers0 = require('../__mocks__/pull/payload-reviewers-0');
-const reviewsApproved = require('../__mocks__/pull/reviews-approved');
+import Pull from '../lib/pull.js';
+import payloadDefault from '../__mocks__/pull/payload-default.js';
+import payloadReviewers0 from '../__mocks__/pull/payload-reviewers-0.js';
+import reviewsApproved from '../__mocks__/pull/reviews-approved.js';
 
-const renderMessage = require('../lib/message');
-const messageExpected = require('../__mocks__/message/message-expected');
-const messageExpectedMergeable = require('../__mocks__/message/message-expected-mergeable');
+import renderMessage from '../lib/message.js';
+import messageExpected from '../__mocks__/message/message-expected.js';
+import messageExpectedMergeable from '../__mocks__/message/message-expected-mergeable.js';
 
 test('render message, pull cannot merge', () => {
     const config = new Config(coreDefault);

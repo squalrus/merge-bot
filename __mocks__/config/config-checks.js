@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "blocking_labels": ["do not merge"],
     "labels": ["ready", "merge"],
     "method": "merge",

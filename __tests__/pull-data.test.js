@@ -1,14 +1,14 @@
-const Pull = require('../lib/pull');
+import Pull from '../lib/pull.js';
 
-const payloadDefault = require('../__mocks__/pull/payload-default');
+import payloadDefault from '../__mocks__/pull/payload-default.js';
 
-const reviewData = require('../__mocks__/pull/review-data');
-const reviewDataExpected = require('../__mocks__/pull/review-data-expected');
+import reviewData from '../__mocks__/pull/review-data.js';
+import reviewDataExpected from '../__mocks__/pull/review-data-expected.js';
 
-const reviewsOutOfOrder = require('../__mocks__/pull/reviews-out-of-order');
-const reviewsOutOfOrderExpected = require('../__mocks__/pull/reviews-out-of-order-expected');
+import reviewsOutOfOrder from '../__mocks__/pull/reviews-out-of-order.js';
+import reviewsOutOfOrderExpected from '../__mocks__/pull/reviews-out-of-order-expected.js';
 
-const checks0 = require('../__mocks__/checks/check-0');
+import checks0 from '../__mocks__/checks/check-0.js';
 
 test('parse valid reviews data', () => {
     const pull = new Pull(payloadDefault);

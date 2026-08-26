@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "blocking_labels": ["hold", "stop", "no"],
     "labels": ["good-n-ready", "nice", "okay"],
     "merge_method": "squash",

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     "action": "opened",
     "number": 2,
     "pull_request": {

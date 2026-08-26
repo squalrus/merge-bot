@@ -10,7 +10,7 @@ The action works and its test suite passes, but the project has had no code chan
 
 | Area | Status |
 |---|---|
-| Tests | ✅ Passing (39/39) |
+| Tests | ✅ Passing (50/50), 100% statement/branch coverage across `index.js` and `lib/` (was untested for `index.js` and had several dark branches before v0.4.9) |
 | Action runtime | ✅ Fixed — now declares `node20` |
 | Dependencies | 🟠 Multiple majors behind, security advisories open |
 | CI/CD | 🟠 Split across two unmonitored systems, one on EOL Node; a `dist/` staleness check is now in place |
@@ -38,7 +38,7 @@ Prod dependencies (`npm outdated`):
 | `@actions/github` | 4.0.0 | 9.1.1 | Five majors behind. `index.js` calls REST methods directly on the octokit client (e.g. `octokit.pulls.listReviews`) rather than under `.rest.*`, which is the v4-era API shape — upgrading is a breaking change for this code, not a drop-in bump. |
 | `jest` (dev) | 26.6.3 | 30.4.2 | Four majors behind. Most of the `npm audit` noise (Babel, `ws`, etc.) comes from this dependency's transitive tree, not from anything shipped in the action itself. |
 
-`npm audit` totals: **56 vulnerabilities** (6 critical, 16 high, 33 moderate, 1 low) across 533 total dependencies (22 prod / 512 dev). The prod-facing surface is small (`@actions/core`, `@actions/github`, and their transitive deps); the bulk of the critical/high findings are in the `jest` 26 dev toolchain and would clear substantially by upgrading `jest` alone. As of [v0.4.8](https://github.com/squalrus/merge-bot/pull/81), the dev-toolchain findings no longer matter for what actually *runs*: `dist/index.js` is bundled with `@vercel/ncc`, which only pulls in `dependencies`, so `jest`/Babel/etc. never ship in the action regardless of this audit's local `npm audit` numbers. Upgrading `jest` is still worth doing for local dev hygiene, just no longer a runtime security question.
+`npm audit` totals (re-checked 2026-08-26): **54 vulnerabilities** (6 critical, 15 high, 32 moderate, 1 low) — drifted slightly from the previous count as upstream advisories shift, not from anything changed in this repo. The prod-facing surface is small (`@actions/core`, `@actions/github`, and their transitive deps); the bulk of the critical/high findings are in the `jest` 26 dev toolchain and would clear substantially by upgrading `jest` alone. As of [v0.4.8](https://github.com/squalrus/merge-bot/pull/81), the dev-toolchain findings no longer matter for what actually *runs*: `dist/index.js` is bundled with `@vercel/ncc`, which only pulls in `dependencies`, so `jest`/Babel/etc. never ship in the action regardless of this audit's local `npm audit` numbers. Upgrading `jest` is still worth doing for local dev hygiene, just no longer a runtime security question.
 
 No `.github/dependabot.yml` exists in the repo, yet Dependabot has opened PRs (#68–#75) — this is GitHub's automatic security-update behavior, not a configured `version-updates` schedule. Without a config file there's no grouping, no schedule, and no policy for how these PRs get triaged, which is consistent with 6 of them sitting open since 2021–2023.
 
@@ -94,11 +94,12 @@ Checked each against the current code (`lib/pull.js`, `lib/config.js`, `index.js
 - No linter/formatter config (no ESLint, Prettier, or `.editorconfig`) and no `engines` field in `package.json` pinning a supported Node version for local development.
 - No `SECURITY.md` or `CODEOWNERS`.
 - Issue templates exist (`bug_report.md`, `feature_request.md`) but are the unmodified GitHub defaults (still reference "Smartphone" / "Desktop" fields, irrelevant for a GitHub Action).
-- Test suite itself is in good shape: 7 suites, 39 tests, all passing, reasonable mock fixtures under `__mocks__/`.
+- ~~`index.js` (the action's entry point) had zero test coverage~~ — **fixed 2026-08-26** (v0.4.9): `__tests__/index.test.js` now mocks `@actions/core`/`@actions/github` and exercises test-mode commenting, merge + branch deletion, the fork-retains-branch path, the `canMerge=false` no-op path, and an API-failure → `core.setFailed` path. Combined with new tests closing a handful of previously-dark branches in `lib/` (an out-of-order review resubmission, a missing checks payload, `renderMessage`'s mergeable case, and `Config`'s `test`/`delete_source_branch` flags never having been asserted `true`), the suite is now 8 suites / 50 tests at 100% statement/branch/function/line coverage.
+- Test suite itself is in good shape: reasonable mock fixtures under `__mocks__/`, one file per concern.
 
 ## What's healthy / working well
 
-- Core logic (`lib/pull.js`, `lib/config.js`, `lib/message.js`) is small, readable, and fully covered by tests.
+- Core logic (`lib/pull.js`, `lib/config.js`, `lib/message.js`) and the `index.js` entry point are small, readable, and fully covered by tests (100% statement/branch coverage as of v0.4.9).
 - The "dogfooding" setup — using the action to merge its own PRs — is a nice validation loop when it's kept healthy.
 - README input/output documentation is accurate and matches `action.yml` exactly.
 - MIT license is clear and unambiguous (once `package.json` is corrected to match).

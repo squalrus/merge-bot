@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.17] — 2026-08-26
+
+### Added
+- **`.github/dependabot.yml`.** No Dependabot config existed, yet Dependabot was already opening PRs via GitHub's automatic security updates — without a schedule or policy, 6+ dependency PRs sat open for years. Configures weekly `npm` ecosystem scans with dev-dependency bumps grouped into a single PR so future updates arrive in batches instead of one-off drips. (`.github/dependabot.yml`)
+
 ## [0.4.16] — 2026-08-26
 
 ### Changed

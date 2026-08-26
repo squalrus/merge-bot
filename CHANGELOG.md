@@ -2,6 +2,12 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.4.15] — 2026-08-26
+
+### Added
+- **`.github/CODEOWNERS`.** No CODEOWNERS file existed, so PRs got no automatic reviewer assignment. Designates `@squalrus` as the default reviewer for all paths. (`.github/CODEOWNERS`)
+- **`SECURITY.md`.** Establishes a security policy: private vulnerability reporting via GitHub Security Advisories, a 5-business-day initial response target, latest-release-only support (project is pre-1.0), and an MIT license statement. (`SECURITY.md`)
+
 ## [0.4.14] — 2026-08-26
 
 ### Added

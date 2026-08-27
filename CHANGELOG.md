@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.5.6] — 2026-08-27
+
+### Changed
+- **GitHub Release notes are now a short bullet list, not the full CHANGELOG entry.** Every release since v0.4.6 had pasted its entire CHANGELOG.md section (bold headers, rationale, file lists) verbatim as the GitHub Release notes — unlike the short, scannable one-liners releases had before v0.4.6. `scripts/tag-and-release.sh` now extracts just the bold lead sentence off each `- **Lead.** Detail...` CHANGELOG bullet for the release notes, matching the old style; the full explanation still lives in CHANGELOG.md. Backfilled concise notes for all 20 existing releases (v0.4.6 through v0.5.5) to match. (`scripts/tag-and-release.sh`, `CONTRIBUTING.md`)
+
 ## [0.5.5] — 2026-08-27
 
 ### Added

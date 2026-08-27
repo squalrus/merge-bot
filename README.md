@@ -73,9 +73,13 @@ on:
     types:
       - dismissed
       - submitted
+  check_suite:
+    types:
+      - completed
 
 jobs:
   merge:
+    if: github.event_name != 'check_suite' || github.event.check_suite.pull_requests[0] != null
     runs-on: ubuntu-latest
     name: Merge
     steps:
@@ -94,6 +98,8 @@ jobs:
 
 `pull_request_target` (rather than `pull_request`) is required for merge-bot to work on pull requests from forks: GitHub always issues a read-only `GITHUB_TOKEN` for fork-originated `pull_request` events, which makes the actual merge fail even when merge-bot judges the PR mergeable. `pull_request_target` runs with your repo's normal token permissions instead. This is only safe because the workflow above never checks out or executes the fork's code — it just runs the trusted `merge-bot` action against webhook data. If you add a step that checks out `github.event.pull_request.head.sha` to this workflow, you'd be executing untrusted fork code with write access to your repo; don't do that here.
 
+`check_suite: [completed]` is what lets merge-bot re-evaluate a PR the moment its checks finish, rather than waiting for some unrelated event (another push, a new review) to happen to retrigger it — the usual gap when `checks_enabled: true` and a check runs longer than the PR's other requirements take to satisfy. A check suite fires for every commit in the repo, not just ones tied to open PRs, so its payload lists the (possibly empty) set of pull requests it's associated with; merge-bot fetches and re-evaluates each one in full. The job's `if` above skips runs with no associated pull request so they don't spend a runner for nothing.
+
 ### Retrying via a PR comment
 
 Merging can occasionally fail with a transient `Base branch was modified` error (typically when multiple merge-bot runs land close together). To let a comment on the pull request re-trigger evaluation, add `issue_comment` to the workflow's triggers, guarding the job so it only runs for comments on pull requests (`issue_comment` also fires for comments on plain issues, which have no pull request to evaluate):
@@ -109,6 +115,12 @@ jobs:
     if: github.event.issue.pull_request
     runs-on: ubuntu-latest
     ...
+```
+
+If you're combining this with the `check_suite` trigger above, `&&` the two conditions together rather than adding a second `if:` key (YAML keeps only the last one):
+
+```yaml
+if: (github.event_name != 'issue_comment' || github.event.issue.pull_request) && (github.event_name != 'check_suite' || github.event.check_suite.pull_requests[0] != null)
 ```
 
 ## Development

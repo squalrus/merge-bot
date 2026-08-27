@@ -28,6 +28,8 @@ Not merging fork PRs? Skip this, `pull_request` still works.
 
 **Retry via PR comment** — add an `issue_comment` trigger to retry a merge that failed with "Base branch was modified." See the README's [Retrying via a PR comment](README.md#retrying-via-a-pr-comment) section.
 
+**Re-evaluate when checks complete** — add a `check_suite: [completed]` trigger (with a job guard) so a mergeable PR is picked up the moment its checks finish, instead of waiting for another event to happen to retrigger it. See the README's [Example usage](README.md#example-usage) section.
+
 ## Everything else
 
 Node runtime, fork check lookups, a crash on non-PR events — all fixed transparently, nothing to do.

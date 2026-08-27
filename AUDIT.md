@@ -6,16 +6,16 @@ This document is a point-in-time health check of the `merge-bot` repository: wha
 
 ## Summary
 
-After the 2026-08-26 remediation push (v0.4.7 through v0.4.17: runtime fix, dependency upgrades, ESM migration, test coverage, `dist/` bundling, CI consolidation, `dependabot.yml`, `CODEOWNERS`/`SECURITY.md`) covered in this audit's prior revision, the same day's second half closed out the PR/issue backlog itself: all 9 open PRs were triaged to zero, one community feature (comment-triggered re-evaluation, #72) was ported to the current codebase and merged, a real bug it surfaced along the way was fixed, and a second, more fundamental bug was discovered and documented. A third pass (v0.5.1) then fixed #77, the confirmed crash-on-every-push bug that had been the top-priority open issue, and updated [BACKLOG.md](BACKLOG.md)'s shipping checklist to require linking/attributing/closing the GitHub issue behind any shipped item going forward. A fourth pass (v0.5.5, 2026-08-27) fixed #37's missing `requested_teams` handling and added a [MIGRATION.md](MIGRATION.md) guide for consumers still pinned to `v0.4.5`. **Zero PRs are open, zero stale branches remain on `origin`, and the two forks with any independent activity (`umegaya`, `comnoco`) have nothing left worth pulling in.** What remains is 6 long-standing community feature/bug issues (down from 8 — none of the rest touch code that moved this session) plus the still-open fork-merge-token limitation, all in [BACKLOG.md](BACKLOG.md).
+After the 2026-08-26 remediation push (v0.4.7 through v0.4.17: runtime fix, dependency upgrades, ESM migration, test coverage, `dist/` bundling, CI consolidation, `dependabot.yml`, `CODEOWNERS`/`SECURITY.md`) covered in this audit's prior revision, the same day's second half closed out the PR/issue backlog itself: all 9 open PRs were triaged to zero, one community feature (comment-triggered re-evaluation, #72) was ported to the current codebase and merged, a real bug it surfaced along the way was fixed, and a second, more fundamental bug was discovered and documented. A third pass (v0.5.1) then fixed #77, the confirmed crash-on-every-push bug that had been the top-priority open issue, and updated [BACKLOG.md](BACKLOG.md)'s shipping checklist to require linking/attributing/closing the GitHub issue behind any shipped item going forward. A fourth pass (v0.5.5, 2026-08-27) fixed #37's missing `requested_teams` handling and added a [MIGRATION.md](MIGRATION.md) guide for consumers still pinned to `v0.4.5`. A fifth pass (v0.6.0, 2026-08-27) closed #22 by re-fetching and re-evaluating a PR's associated pull requests on `check_suite` completion. **Zero PRs are open, zero stale branches remain on `origin`, and the two forks with any independent activity (`umegaya`, `comnoco`) have nothing left worth pulling in.** What remains is 5 long-standing community feature/bug issues (down from 8 — none of the rest touch code that moved this session) plus the still-open fork-merge-token limitation, all in [BACKLOG.md](BACKLOG.md).
 
 | Area | Status |
 |---|---|
-| Tests | ✅ Passing (56/56), 100% statement/branch coverage across `index.js` and `lib/` |
+| Tests | ✅ Passing (59/59), 100% statement/branch coverage across `index.js` and `lib/` |
 | Action runtime | ✅ `node20` |
 | Dependencies | ✅ `npm audit`: 0 vulnerabilities; `.github/dependabot.yml` scheduling weekly scans |
 | CI/CD | ✅ `test.yml` / `build-check.yml` / `version-check.yml` / `merge-bot.yml` (now also triggers on `issue_comment`, see below) |
 | Open PRs | 🟢 **0 open** — all 9 triaged this session (7 dependabot closed as superseded, #12 closed as stale, #72 ported and merged) |
-| Open issues | 🟢 8 open on GitHub as of this writing, but #77 (v0.5.1) and #37 (v0.5.5, this shipment) are fixed and will auto-close on merge, leaving 6 |
+| Open issues | 🟢 8 open on GitHub as of this writing, but #77 (v0.5.1), #37 (v0.5.5), and #22 (v0.6.0, this shipment) are fixed and will auto-close on merge, leaving 5 |
 | Repo hygiene | ✅ Zero stale branches on `origin` (was 8); `CODEOWNERS`, `SECURITY.md`, `dependabot.yml` all present |
 | Known issues (undocumented) | ✅ Fixed in v0.5.2: fork PRs couldn't be merged via the `labeled` trigger — a GitHub platform token restriction, not a code bug. See below. |
 | Docs | 🟡 CLAUDE.md and CONTRIBUTING.md both contain **stale, incorrect** claims about the current octokit API shape and pinned dependency version — see "Documentation drift" below. |
@@ -65,9 +65,9 @@ Checked the two forks with any independent activity beyond a stock fork:
 - **[umegaya/merge-bot](https://github.com/umegaya/merge-bot)** — nothing left to capture; its only unique work was #72, now merged.
 - **[comnoco/merge-bot](https://github.com/comnoco/merge-bot)** — diverged independently in 2022–2023 and did its own Node 12→16→20 runtime upgrade and dependency bumps, but every bit of it is superseded by this repo's own history (already on `node20`; their three open dependabot branches propose *older* versions than what's already in `package.json`). Never opened a PR against this repo, so none of it was ever proposed here. Nothing worth backporting.
 
-## Open issues (6, was 8)
+## Open issues (5, was 8)
 
-Re-checked against current code (`lib/pull.js`, `lib/config.js`, `index.js`). #77 (v0.5.1) and #37 (v0.5.5, this shipment) are fixed and will close automatically on merge (`Fixes #<n>` in each PR body) — the other 6 are unchanged, since none of this session's code changes touched the areas they report on.
+Re-checked against current code (`lib/pull.js`, `lib/config.js`, `index.js`). #77 (v0.5.1), #37 (v0.5.5), and #22 (v0.6.0, this shipment) are fixed and will close automatically on merge (`Fixes #<n>` in each PR body) — the other 5 are unchanged, since none of this session's code changes touched the areas they report on.
 
 | # | Title | Author | Opened | Still valid? |
 |---|---|---|---|---|
@@ -75,12 +75,12 @@ Re-checked against current code (`lib/pull.js`, `lib/config.js`, `index.js`). #7
 | [#59](https://github.com/squalrus/merge-bot/issues/59) | Time based allow/block of merges | alper (community) | 2021-06-15 | ✅ Still unimplemented |
 | [#56](https://github.com/squalrus/merge-bot/issues/56) | Allow merges even if the base branch changes | RevolutionTech (community) | 2021-04-28 | ✅ Still unimplemented |
 | ~~[#37](https://github.com/squalrus/merge-bot/issues/37)~~ | Not detecting reviews? | aaron-trout (community) | 2020-09-03 | ✅ **Fixed in v0.5.5** — `Pull` now reads `requested_teams` alongside `requested_reviewers`, so a pending CODEOWNERS team review blocks merge instead of being silently ignored |
-| [#22](https://github.com/squalrus/merge-bot/issues/22) | Re-trigger Action when checks complete | squalrus (you) | 2020-01-26 | ✅ Still true |
+| ~~[#22](https://github.com/squalrus/merge-bot/issues/22)~~ | Re-trigger Action when checks complete | squalrus (you) | 2020-01-26 | ✅ **Fixed in v0.6.0** — `index.js` now handles `check_suite` completion events, re-fetching and re-evaluating each associated pull request; the README's example workflow adds a `check_suite: [completed]` trigger |
 | [#14](https://github.com/squalrus/merge-bot/issues/14) | follow the configured required review count | Evanion (community) | 2019-12-20 | ✅ Still true |
 | [#13](https://github.com/squalrus/merge-bot/issues/13) | Update from base branch before merging. | Evanion (community) | 2019-12-20 | ✅ Still true |
 | [#7](https://github.com/squalrus/merge-bot/issues/7) | Feature: on commit, remove label(?) or Re-request review(?) | squalrus (you) | 2019-09-27 | ✅ Still true |
 
-**Recommendation:** with #77, #37, and the fork-merge-token limitation all shipped (v0.5.1, v0.5.5, v0.5.2), the remaining community feature/bug issues are all low-urgency at your own pace.
+**Recommendation:** with #77, #37, #22, and the fork-merge-token limitation all shipped (v0.5.1, v0.5.5, v0.6.0, v0.5.2), the remaining community feature/bug issues are all low-urgency at your own pace.
 
 ## Repository hygiene observations
 
@@ -108,6 +108,7 @@ Re-checked against current code (`lib/pull.js`, `lib/config.js`, `index.js`). #7
 5. ~~Fix the fork-merge-token limitation~~ — done 2026-08-26, shipped as v0.5.2 (`pull_request` → `pull_request_target` in `merge-bot.yml`).
 6. ~~Fix #37 (team-requested reviews not detected)~~ — done 2026-08-27, shipped as v0.5.5.
 7. Fix the CLAUDE.md/CONTRIBUTING.md stale-claims doc drift — small, prevents a future contributor from being misled.
-8. Work through the remaining community feature requests (#7, #13, #14, #22, #56, #59) at your own pace — none are urgent, all are still genuinely wanted as far as this audit can tell.
+8. ~~Fix #22 (re-trigger on check completion)~~ — done 2026-08-27, shipped as v0.6.0.
+9. Work through the remaining community feature requests (#7, #13, #14, #56, #59) at your own pace — none are urgent, all are still genuinely wanted as far as this audit can tell.
 
 These are tracked as individual items in [BACKLOG.md](BACKLOG.md).

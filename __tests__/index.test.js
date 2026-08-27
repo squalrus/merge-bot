@@ -3,6 +3,9 @@ import { jest } from '@jest/globals';
 import payloadDefault from '../__mocks__/pull/payload-default.js';
 import payloadFork from '../__mocks__/pull/payload-fork.js';
 import payloadIssueComment from '../__mocks__/pull/payload-issue-comment.js';
+import payloadCheckSuite from '../__mocks__/pull/payload-check-suite.js';
+import payloadCheckSuiteMulti from '../__mocks__/pull/payload-check-suite-multi.js';
+import payloadCheckSuiteEmpty from '../__mocks__/pull/payload-check-suite-empty.js';
 import reviewsNone from '../__mocks__/pull/reviews-none.js';
 import checks0 from '../__mocks__/checks/check-0.js';
 
@@ -135,6 +138,60 @@ test('comment on a pull request fetches it and merges it', async () => {
     expect(octokit.rest.pulls.merge).toHaveBeenCalledWith(expect.objectContaining({
         pull_number: 20
     }));
+});
+
+test('check suite completion fetches its associated pull request and merges it', async () => {
+    const octokit = makeOctokit();
+    await runIndex({
+        inputs: { labels: 'ready' },
+        payload: payloadCheckSuite,
+        octokit
+    });
+
+    expect(octokit.rest.pulls.get).toHaveBeenCalledWith({
+        owner: 'squalrus',
+        repo: 'merge-bot',
+        pull_number: 20
+    });
+    expect(octokit.rest.pulls.merge).toHaveBeenCalledWith(expect.objectContaining({
+        pull_number: 20
+    }));
+});
+
+test('check suite completion re-evaluates every associated pull request', async () => {
+    const octokit = makeOctokit({
+        pulls: {
+            get: jest.fn((params) => Promise.resolve({
+                data: { ...payloadDefault.pull_request, number: params.pull_number }
+            })),
+            listReviews: jest.fn().mockResolvedValue(reviewsNone),
+            merge: jest.fn().mockResolvedValue({})
+        }
+    });
+
+    await runIndex({
+        inputs: { labels: 'ready' },
+        payload: payloadCheckSuiteMulti,
+        octokit
+    });
+
+    expect(octokit.rest.pulls.get).toHaveBeenCalledWith(expect.objectContaining({ pull_number: 20 }));
+    expect(octokit.rest.pulls.get).toHaveBeenCalledWith(expect.objectContaining({ pull_number: 21 }));
+    expect(octokit.rest.pulls.merge).toHaveBeenCalledWith(expect.objectContaining({ pull_number: 20 }));
+    expect(octokit.rest.pulls.merge).toHaveBeenCalledWith(expect.objectContaining({ pull_number: 21 }));
+});
+
+test('check suite completion with no associated pull requests is a clean no-op', async () => {
+    const octokit = makeOctokit();
+    const { core } = await runIndex({
+        inputs: { labels: 'ready' },
+        payload: payloadCheckSuiteEmpty,
+        octokit
+    });
+
+    expect(octokit.rest.pulls.get).not.toHaveBeenCalled();
+    expect(octokit.rest.pulls.merge).not.toHaveBeenCalled();
+    expect(core.setFailed).not.toHaveBeenCalled();
 });
 
 test('comment on a plain issue does not attempt to fetch a pull request', async () => {

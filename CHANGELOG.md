@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.6.0] — 2026-08-27
+
+### Added
+- **Re-trigger merge evaluation when checks complete.** Reported in [#22](https://github.com/squalrus/merge-bot/issues/22) by [@squalrus](https://github.com/squalrus). The action only ever ran once per triggering event and never requeued itself, so a PR could sit mergeable-but-unmerged until some unrelated event (a new push, a review) happened to retrigger it — a check finishing after the bot's last run wouldn't cause a re-evaluation on its own. `index.js` now handles `check_suite` completion events: since that payload only lists minimal pull request refs (no labels or reviewer data), each associated pull request is re-fetched in full and re-evaluated. The README's example workflow now includes `check_suite: [completed]` as a trigger, with a job-level guard so runs with no associated pull request are skipped. (`index.js`, `README.md`, `__mocks__/pull/payload-check-suite.js`, `__mocks__/pull/payload-check-suite-multi.js`, `__mocks__/pull/payload-check-suite-empty.js`, `__tests__/index.test.js`)
+
 ## [0.5.7] — 2026-08-27
 
 ### Fixed

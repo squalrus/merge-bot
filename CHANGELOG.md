@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.5.4] — 2026-08-26
+
+### Fixed
+- **Release automation never fired for merge-bot's own merges.** v0.5.3's `release.yml` never ran for v0.5.3 itself: it triggers on `push` to `main`, but GitHub doesn't create new workflow runs for a push made with the default `GITHUB_TOKEN` — which is exactly how merge-bot merges PRs. Discovered live when v0.5.3 merged and no tag/release appeared; backfilled it manually. `scripts/tag-and-release.sh` now holds the tag/release logic, and `merge-bot.yml` runs it directly as a step right after its own merge (checking out `main` only, never the PR's own head, so the pull_request_target/fork-code safety property from v0.5.2 still holds); `release.yml`'s push trigger remains as a fallback for a version bump landing on `main` some other way. (`scripts/tag-and-release.sh`, `.github/workflows/merge-bot.yml`, `.github/workflows/release.yml`, `CONTRIBUTING.md`)
+
 ## [0.5.3] — 2026-08-26
 
 ### Added

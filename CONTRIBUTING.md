@@ -30,7 +30,11 @@ This repo uses itself: `.github/workflows/merge-bot.yml` runs `merge-bot` agains
 
 Releases are git tags (`vX.Y.Z`) plus a GitHub release; there's no publish step beyond that since consumers reference a tag or branch directly (e.g. `squalrus/merge-bot@v0.4.5`).
 
-This is automatic: [`.github/workflows/release.yml`](.github/workflows/release.yml) watches every push to `main` that touches `package.json`. When it finds a version with no matching tag yet, it tags that commit `vX.Y.Z`, pushes the tag, and creates a GitHub release using the corresponding `## [X.Y.Z]` section of [CHANGELOG.md](CHANGELOG.md) as the release notes. So the standard release flow — bump `package.json`'s version, add the CHANGELOG entry, merge to `main` — is sufficient; nothing further to run by hand. If `CHANGELOG.md` has no section for the new version, the workflow fails loudly rather than publishing an empty release.
+This is automatic: [`scripts/tag-and-release.sh`](scripts/tag-and-release.sh) reads `package.json`'s version, and if there's no matching `vX.Y.Z` tag yet, tags the current commit, pushes the tag, and creates a GitHub release using the corresponding `## [X.Y.Z]` section of [CHANGELOG.md](CHANGELOG.md) as the release notes (failing loudly if that section is missing rather than publishing an empty release). It runs from two places, because GitHub doesn't trigger new workflow runs from a push made with the default `GITHUB_TOKEN` — which is how merge-bot merges PRs:
+- [`.github/workflows/merge-bot.yml`](.github/workflows/merge-bot.yml) runs it directly, right after merge-bot's own merge step — this is the path that fires for the normal `ready`-label flow.
+- [`.github/workflows/release.yml`](.github/workflows/release.yml) runs it on any other push to `main` that touches `package.json` — a fallback for a version bump landing some other way (e.g. a maintainer merging by hand).
+
+Either way, the standard flow — bump `package.json`'s version, add the CHANGELOG entry, merge to `main` — is sufficient; nothing further to run by hand.
 
 `.github/workflows/version-check.yml` runs on every pushed tag and fails loudly if the tag doesn't match `package.json`'s version — for the automated path the two can't drift, but it remains a safety net for a manually-pushed tag (e.g. releasing directly without going through `main`, via `npm version patch && git push --follow-tags`). If it fails, delete the bad tag, fix the version, and re-tag.
 

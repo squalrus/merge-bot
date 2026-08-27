@@ -34,3 +34,19 @@ jobs:
         checks_enabled: false
         method: squash
         delete_source_branch: false
+
+    # Merges performed above use GITHUB_TOKEN, and GitHub doesn't trigger
+    # further workflow runs (like release.yml's push trigger) from pushes
+    # made with that token — so tag/release creation runs inline here
+    # instead. Checks out main only (never the PR's own head), so this
+    # doesn't touch the pull_request_target/fork-code safety note below.
+    - name: Check out main
+      uses: actions/checkout@v4
+      with:
+        ref: main
+        fetch-depth: 0
+
+    - name: Tag and create GitHub release if a new version landed
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: bash scripts/tag-and-release.sh

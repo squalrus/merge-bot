@@ -5,12 +5,13 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 ## Shipping a backlog item
 
 1. Branch off `main` named for the target version (`vX.Y.Z`). Never commit directly to `main`.
-2. Move the entry to CHANGELOG.md with a version block (date, classification, user-facing summary). Remove it from here.
+2. Move the entry to CHANGELOG.md with a version block (date, classification, user-facing summary). Remove it from here. If the item traces to a GitHub issue, link it (`#<n>`) and credit the reporter by `@username` in the entry — most "Why" sections already have both, so this is usually just carrying them over.
 3. Update docs where reality changed (README, CONTRIBUTING, etc.).
 4. Pick the version by semver: feature → minor; bug / improvement / cleanup → patch; breaking → major.
 5. Bump the version in whichever location CLAUDE.md documents (package.json, VERSION file, or CHANGELOG.md only).
 6. Run the build as the correctness gate.
-7. Commit and push the branch, then open a PR with `gh pr create`. Requires [GitHub CLI](https://cli.github.com) installed and authenticated (`gh auth login`).
+7. Commit and push the branch, then open a PR with `gh pr create`. If the item traces to a GitHub issue, include `Fixes #<n>` (or `Closes #<n>`) in the PR body so merging auto-closes it — GitHub links the issue to the PR either way. Requires [GitHub CLI](https://cli.github.com) installed and authenticated (`gh auth login`).
+8. After merging, verify the linked issue actually closed (auto-close only fires if the PR merged into the repo's *default* branch — confirm `main` is set as default, or close manually with `gh issue close <n> --comment "Fixed in <PR link>"` if it didn't).
 
 ## Suggested execution order
 
@@ -37,7 +38,7 @@ No open improvements.
 
 | Title | Effort | Value |
 |---|---|---|
-| [Crash on non-PR events (missing pull_request payload)](#crash-on-non-pr-events-missing-pull_request-payload) | S | H |
+| [Fork PRs can't be auto-merged via the labeled trigger](#fork-prs-cant-be-auto-merged-via-the-labeled-trigger) | S | H |
 | [Not detecting team-requested reviews](#not-detecting-team-requested-reviews) | S | M |
 
 ### Limitations
@@ -53,10 +54,10 @@ No open limitations.
 **Why** — Consumers currently either pin an exact tag (`@v0.4.5`) or float on `@main`. A moving major tag (e.g. `v0`) lets them pin `squalrus/merge-bot@v0` and pick up patch/minor releases automatically without tracking every release — the common convention for GitHub Actions (see `actions/checkout@v4`, etc.).
 **Notes:** On release, after `npm version` creates the exact tag, force-move the major tag to point at the new commit and push it: `git tag -f v0 <new-tag> && git push origin v0 --force`. Add this as a step in [CONTRIBUTING.md](CONTRIBUTING.md)'s release process, ideally automated in a release workflow rather than manual. Consider updating the README's example usage to recommend pinning the major tag instead of an exact version once this exists.
 
-### Crash on non-PR events (missing pull_request payload)
+### Fork PRs can't be auto-merged via the labeled trigger
 **Type:** Bug
-**Why** — Confirmed reproducible crash reported in [#77](https://github.com/squalrus/merge-bot/issues/77): `Pull`'s constructor ([lib/pull.js](lib/pull.js#L3)) does `payload.pull_request.labels.map(...)` unconditionally. A workflow triggered on `push` (in addition to `pull_request`, as the reporter's is) delivers a payload with no `pull_request` object at all, so this throws on every push. Real user impact today, not a hypothetical — flagged by the audit as the single highest-priority item outstanding.
-**Notes:** Guard on `github.context.payload.pull_request` existing before constructing `Pull` in [index.js](index.js#L16); no-op cleanly on non-PR events instead of crashing. Small, self-contained fix.
+**Why** — Discovered live 2026-08-26: labeling PR #72 (head `umegaya/merge-bot:master`, a fork) to trigger a merge failed with "Resource not accessible by integration" at the `octokit.rest.pulls.merge` call, even though `canMerge()` correctly evaluated `true` and reads (reviews, checks) succeeded. Root cause is a GitHub platform restriction, not a merge-bot bug: for `pull_request`-family events (`labeled`, `synchronize`, etc.) triggered by a PR from a forked repository, `GITHUB_TOKEN` is always read-only, regardless of the repo's own default workflow-permissions setting (confirmed `squalrus/merge-bot`'s default is "write" — doesn't matter for fork-triggered `pull_request` events). So no fork-originated PR can be merged via the label trigger today, structurally, no matter what config is set — had to merge #72 manually via `gh pr merge` to work around it. Blocks the bot's core use case for any external contributor PR, which is presumably common for a 12-fork open source project.
+**Notes:** Change `.github/workflows/merge-bot.yml`'s `pull_request:` trigger to `pull_request_target:`, which runs with the base repo's full-permission token even for fork PRs. Safe here specifically because the workflow never checks out or executes the fork's code — no `actions/checkout` step exists; the "Integration check" step only invokes `squalrus/merge-bot@main` (trusted code from the base repo) against webhook payload data, so there's no path for untrusted fork code to run with the elevated token.
 
 ### Not detecting team-requested reviews
 **Type:** Bug

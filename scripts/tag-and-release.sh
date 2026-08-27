@@ -27,7 +27,7 @@ fi
 # Release notes are a short bullet list for scanning, not the full CHANGELOG
 # entry: pull just the bold lead sentence off each "- **Lead.** Detail..."
 # bullet. The full explanation stays in CHANGELOG.md for anyone who wants it.
-NOTES="$(echo "$CHANGELOG_SECTION" | sed -n -E 's/^- \*\*(.*)\.\*\*.*/- \1/p')"
+NOTES="$(echo "$CHANGELOG_SECTION" | sed -n -E 's/^- \*\*([^*]*)\*\*.*/- \1/p')"
 
 if [ -z "$NOTES" ]; then
     echo "::error::CHANGELOG.md's $VERSION section has no '- **Lead.** ...' bullets to extract release notes from."

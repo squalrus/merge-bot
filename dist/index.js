@@ -37032,6 +37032,7 @@ class Pull {
         this.ref = `${payload.pull_request.head.sha}`;
         this.repo = payload.repository.name;
         this.requested_reviewers = payload.pull_request.requested_reviewers;
+        this.requested_teams = payload.pull_request.requested_teams;
         this.checks = {};
         this.headRepoId = payload.pull_request.head.repo.id;
         this.baseRepoId = payload.pull_request.base.repo.id;
@@ -37048,6 +37049,11 @@ class Pull {
 
         if (this.requested_reviewers.length > 0) {
             console.log('merge failed: requested_reviewers is greater than zero');
+            return false;
+        }
+
+        if (this.requested_teams.length > 0) {
+            console.log('merge failed: requested_teams is greater than zero');
             return false;
         }
 
@@ -37184,6 +37190,7 @@ const renderMessage = (action, config, pull) => {
 <table>
 <tr><td>labels</td><td>${JSON.stringify(pull.labels)}</td></tr>
 <tr><td>requested reviewers</td><td>${JSON.stringify(pull.requested_reviewers)}</td></tr>
+<tr><td>requested teams</td><td>${JSON.stringify(pull.requested_teams)}</td></tr>
 <tr><td>reviewers</td><td>${JSON.stringify(pull.reviews)}</td></tr>
 <tr><td>checks</td><td>${JSON.stringify(pull.checks)}</td></tr>
 </table>`;

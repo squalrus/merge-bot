@@ -28,7 +28,7 @@ This repo uses itself: `.github/workflows/merge-bot.yml` runs `merge-bot` agains
 
 ## Releasing
 
-Releases are git tags (`vX.Y.Z`) plus a GitHub release; there's no publish step beyond that since consumers reference a tag or branch directly (e.g. `squalrus/merge-bot@v0.4.5`).
+Releases are git tags (`vX.Y.Z`) plus a GitHub release; there's no publish step beyond that since consumers reference a tag or branch directly (e.g. `squalrus/merge-bot@v0.5.4`).
 
 This is automatic: [`scripts/tag-and-release.sh`](scripts/tag-and-release.sh) reads `package.json`'s version, and if there's no matching `vX.Y.Z` tag yet, tags the current commit, pushes the tag, and creates a GitHub release using the corresponding `## [X.Y.Z]` section of [CHANGELOG.md](CHANGELOG.md) as the release notes (failing loudly if that section is missing rather than publishing an empty release). It runs from two places, because GitHub doesn't trigger new workflow runs from a push made with the default `GITHUB_TOKEN` — which is how merge-bot merges PRs:
 - [`.github/workflows/merge-bot.yml`](.github/workflows/merge-bot.yml) runs it directly, right after merge-bot's own merge step — this is the path that fires for the normal `ready`-label flow.

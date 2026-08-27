@@ -7,6 +7,7 @@ export default {
         },
         "head": {
             "ref": "master",
+            "sha": "1234724d27c4fae27b402212182b64fda77040b5",
             "repo": {
                 "id": 123
             }
@@ -22,9 +23,9 @@ export default {
                 "name": "ready"
             }
         ],
-        "number": "20",
-        "requested_reviewers": ["squalrus"],
-        "requested_teams": [],
+        "number": 20,
+        "requested_reviewers": [],
+        "requested_teams": ["reviewers-team"],
         "user": {
             "login": "squalrus"
         }

@@ -5,6 +5,7 @@ import checks from '../__mocks__/checks/check-4a.js';
 import payloadReviewers0 from '../__mocks__/pull/payload-reviewers-0.js';
 import payloadReviewers1 from '../__mocks__/pull/payload-reviewers-1.js';
 import payloadReviewers2 from '../__mocks__/pull/payload-reviewers-2.js';
+import payloadReviewersTeam from '../__mocks__/pull/payload-reviewers-team.js';
 
 import reviewsNone from '../__mocks__/pull/reviews-none.js';
 import reviewsDenied from '../__mocks__/pull/reviews-denied.js';
@@ -102,6 +103,21 @@ test('do not merge when pending reviewer', () => {
 
 test('do not merge when pending reviewers', () => {
     const pull = new Pull(payloadReviewers2);
+    pull.compileReviews(reviewsApproved);
+    pull.compileChecks(checks);
+
+    const config = {
+        "review_required": true,
+        "labels": ["ready"],
+        "blocking_labels": [],
+        "checks_enabled": true
+    };
+
+    expect(pull.canMerge(config)).toBe(false);
+});
+
+test('do not merge when pending team reviewer', () => {
+    const pull = new Pull(payloadReviewersTeam);
     pull.compileReviews(reviewsApproved);
     pull.compileChecks(checks);
 

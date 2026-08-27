@@ -80,7 +80,7 @@ jobs:
     name: Merge
     steps:
     - name: Integration check
-      uses: squalrus/merge-bot@v0.4.5
+      uses: squalrus/merge-bot@v0.5.4
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         test: true
@@ -127,6 +127,10 @@ npm run build
 ```
 
 A CI check ([`.github/workflows/build-check.yml`](.github/workflows/build-check.yml)) fails the PR if `dist/` is out of date with source.
+
+## Upgrading
+
+Pinned to an old version? See [MIGRATION.md](MIGRATION.md) for what changed since `v0.4.5` and what (if anything) you need to update in your workflow.
 
 ## Contributing
 

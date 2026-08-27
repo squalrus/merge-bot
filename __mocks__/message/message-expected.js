@@ -21,6 +21,7 @@ export default `### merge bot test mode
 <table>
 <tr><td>labels</td><td>[\"foo\",\"bar\",\"ready\"]</td></tr>
 <tr><td>requested reviewers</td><td>[\"squalrus\",\"timgrove\"]</td></tr>
+<tr><td>requested teams</td><td>[]</td></tr>
 <tr><td>reviewers</td><td>[]</td></tr>
 <tr><td>checks</td><td>{}</td></tr>
 </table>`;

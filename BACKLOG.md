@@ -38,7 +38,6 @@ No open improvements.
 
 | Title | Effort | Value |
 |---|---|---|
-| [Fork PRs can't be auto-merged via the labeled trigger](#fork-prs-cant-be-auto-merged-via-the-labeled-trigger) | S | H |
 | [Not detecting team-requested reviews](#not-detecting-team-requested-reviews) | S | M |
 
 ### Limitations
@@ -53,11 +52,6 @@ No open limitations.
 **Type:** Feature
 **Why** — Consumers currently either pin an exact tag (`@v0.4.5`) or float on `@main`. A moving major tag (e.g. `v0`) lets them pin `squalrus/merge-bot@v0` and pick up patch/minor releases automatically without tracking every release — the common convention for GitHub Actions (see `actions/checkout@v4`, etc.).
 **Notes:** On release, after `npm version` creates the exact tag, force-move the major tag to point at the new commit and push it: `git tag -f v0 <new-tag> && git push origin v0 --force`. Add this as a step in [CONTRIBUTING.md](CONTRIBUTING.md)'s release process, ideally automated in a release workflow rather than manual. Consider updating the README's example usage to recommend pinning the major tag instead of an exact version once this exists.
-
-### Fork PRs can't be auto-merged via the labeled trigger
-**Type:** Bug
-**Why** — Discovered live 2026-08-26: labeling PR #72 (head `umegaya/merge-bot:master`, a fork) to trigger a merge failed with "Resource not accessible by integration" at the `octokit.rest.pulls.merge` call, even though `canMerge()` correctly evaluated `true` and reads (reviews, checks) succeeded. Root cause is a GitHub platform restriction, not a merge-bot bug: for `pull_request`-family events (`labeled`, `synchronize`, etc.) triggered by a PR from a forked repository, `GITHUB_TOKEN` is always read-only, regardless of the repo's own default workflow-permissions setting (confirmed `squalrus/merge-bot`'s default is "write" — doesn't matter for fork-triggered `pull_request` events). So no fork-originated PR can be merged via the label trigger today, structurally, no matter what config is set — had to merge #72 manually via `gh pr merge` to work around it. Blocks the bot's core use case for any external contributor PR, which is presumably common for a 12-fork open source project.
-**Notes:** Change `.github/workflows/merge-bot.yml`'s `pull_request:` trigger to `pull_request_target:`, which runs with the base repo's full-permission token even for fork PRs. Safe here specifically because the workflow never checks out or executes the fork's code — no `actions/checkout` step exists; the "Integration check" step only invokes `squalrus/merge-bot@main` (trusted code from the base repo) against webhook payload data, so there's no path for untrusted fork code to run with the elevated token.
 
 ### Not detecting team-requested reviews
 **Type:** Bug

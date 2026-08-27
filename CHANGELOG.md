@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.5.2] — 2026-08-26
+
+### Fixed
+- **Fork PRs couldn't be auto-merged via the labeled trigger.** GitHub always issues a read-only `GITHUB_TOKEN` for `pull_request`-family events triggered by a PR from a forked repository, regardless of the repo's own workflow-permissions setting — so `octokit.rest.pulls.merge` failed with "Resource not accessible by integration" even when `canMerge()` correctly judged the PR mergeable. Discovered live merging PR #72 (a fork PR), which had to be merged manually as a workaround. `.github/workflows/merge-bot.yml` and the README's example workflow now trigger on `pull_request_target` instead of `pull_request`, which runs with the base repo's full-permission token even for fork PRs; safe here because the workflow never checks out or executes the fork's code. (`.github/workflows/merge-bot.yml`, `README.md`)
+
 ## [0.5.1] — 2026-08-26
 
 ### Fixed

@@ -17,7 +17,7 @@ After the 2026-08-26 remediation push (v0.4.7 through v0.4.17: runtime fix, depe
 | Open PRs | 🟢 **0 open** — all 9 triaged this session (7 dependabot closed as superseded, #12 closed as stale, #72 ported and merged) |
 | Open issues | 🟢 8 open on GitHub as of this writing, but #77 is fixed in v0.5.1 (this shipment) and will auto-close on merge, leaving 7 |
 | Repo hygiene | ✅ Zero stale branches on `origin` (was 8); `CODEOWNERS`, `SECURITY.md`, `dependabot.yml` all present |
-| Known issues (undocumented) | 🔴 **New:** fork PRs can't be merged via the `labeled` trigger — a GitHub platform token restriction, not a code bug. See below. |
+| Known issues (undocumented) | ✅ Fixed in v0.5.2: fork PRs couldn't be merged via the `labeled` trigger — a GitHub platform token restriction, not a code bug. See below. |
 | Docs | 🟡 CLAUDE.md and CONTRIBUTING.md both contain **stale, incorrect** claims about the current octokit API shape and pinned dependency version — see "Documentation drift" below. |
 
 ## Documentation drift discovered this session
@@ -80,7 +80,7 @@ Re-checked against current code (`lib/pull.js`, `lib/config.js`, `index.js`). #7
 | [#13](https://github.com/squalrus/merge-bot/issues/13) | Update from base branch before merging. | Evanion (community) | 2019-12-20 | ✅ Still true |
 | [#7](https://github.com/squalrus/merge-bot/issues/7) | Feature: on commit, remove label(?) or Re-request review(?) | squalrus (you) | 2019-09-27 | ✅ Still true |
 
-**Recommendation:** with #77 shipped, the fork-merge-token limitation (below) is now the single highest-priority item — it structurally blocks every external contributor's PR from being auto-merged, and the fix is small and well-understood (`pull_request` → `pull_request_target` in `merge-bot.yml`).
+**Recommendation:** with #77 and the fork-merge-token limitation (below) both shipped (v0.5.1, v0.5.2), the remaining community feature/bug issues are all low-urgency at your own pace.
 
 ## Repository hygiene observations
 
@@ -105,7 +105,7 @@ Re-checked against current code (`lib/pull.js`, `lib/config.js`, `index.js`). #7
 2. ~~Triage the 9 open PRs~~ — done 2026-08-26 (this session): 7 dependabot closed, #12 closed, #72 ported and merged.
 3. ~~Prune stale branches~~ — done 2026-08-26 (this session): zero remain on `origin`.
 4. ~~Fix #77 (crash on non-PR events)~~ — done 2026-08-26, shipped as v0.5.1.
-5. Fix the fork-merge-token limitation (`pull_request` → `pull_request_target` in `merge-bot.yml`) — blocks the bot's core use case for any external contributor. Highest-value remaining item.
+5. ~~Fix the fork-merge-token limitation~~ — done 2026-08-26, shipped as v0.5.2 (`pull_request` → `pull_request_target` in `merge-bot.yml`).
 6. Fix the CLAUDE.md/CONTRIBUTING.md stale-claims doc drift — small, prevents a future contributor from being misled.
 7. Work through the remaining community feature requests (#7, #13, #14, #22, #37, #56, #59) at your own pace — none are urgent, all are still genuinely wanted as far as this audit can tell.
 

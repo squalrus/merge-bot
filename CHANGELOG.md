@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.5.0] — 2026-08-26
+
+### Added
+- **Comment-triggered re-evaluation of a pull request.** Contributed by [Takehiro Iyatomi](https://github.com/umegaya) in #72. Merging can fail with a transient "Base branch was modified" error (typically when multiple merge-bot runs land close together); commenting on the pull request now re-triggers evaluation as a way to retry, once the workflow's triggers include `issue_comment` (see README's "Retrying via a PR comment" section for the required workflow config, added in v0.4.18). `issue_comment` events carry no `pull_request` object, so the action now fetches it via `octokit.rest.pulls.get` when the comment is on a pull request, and leaves plain issue comments alone. (`index.js`, `README.md`)
+
 ## [0.4.19] — 2026-08-26
 
 ### Fixed

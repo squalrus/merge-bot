@@ -2,6 +2,7 @@ import { jest } from '@jest/globals';
 
 import payloadDefault from '../__mocks__/pull/payload-default.js';
 import payloadFork from '../__mocks__/pull/payload-fork.js';
+import payloadIssueComment from '../__mocks__/pull/payload-issue-comment.js';
 import reviewsNone from '../__mocks__/pull/reviews-none.js';
 import checks0 from '../__mocks__/checks/check-0.js';
 
@@ -31,6 +32,7 @@ function makeOctokit(overrides) {
     return {
         rest: Object.assign({
             pulls: {
+                get: jest.fn().mockResolvedValue({ data: payloadDefault.pull_request }),
                 listReviews: jest.fn().mockResolvedValue(reviewsNone),
                 merge: jest.fn().mockResolvedValue({})
             },
@@ -115,6 +117,37 @@ test('eligible pull request is merged and its branch deleted', async () => {
     });
     expect(octokit.rest.issues.createComment).not.toHaveBeenCalled();
     expect(core.setFailed).not.toHaveBeenCalled();
+});
+
+test('comment on a pull request fetches it and merges it', async () => {
+    const octokit = makeOctokit();
+    await runIndex({
+        inputs: { labels: 'ready' },
+        payload: payloadIssueComment,
+        octokit
+    });
+
+    expect(octokit.rest.pulls.get).toHaveBeenCalledWith({
+        owner: 'squalrus',
+        repo: 'merge-bot',
+        pull_number: 20
+    });
+    expect(octokit.rest.pulls.merge).toHaveBeenCalledWith(expect.objectContaining({
+        pull_number: 20
+    }));
+});
+
+test('comment on a plain issue does not attempt to fetch a pull request', async () => {
+    const octokit = makeOctokit();
+    const { core } = await runIndex({
+        inputs: { labels: 'ready' },
+        payload: { action: 'created', issue: { number: 5 }, repository: payloadDefault.repository },
+        octokit
+    });
+
+    expect(octokit.rest.pulls.get).not.toHaveBeenCalled();
+    expect(octokit.rest.pulls.merge).not.toHaveBeenCalled();
+    expect(core.setFailed).toHaveBeenCalled();
 });
 
 test('delete_source_branch=false merges without deleting the branch', async () => {

@@ -7,17 +7,31 @@ import renderMessage from './lib/message.js';
 
 async function run() {
     try {
-        console.log(`action: ${github.context.payload.action}`);
-        console.log(`[data] payload: ${JSON.stringify(github.context.payload)}`);
+        const payload = github.context.payload;
+        console.log(`action: ${payload.action}`);
+        console.log(`[data] payload: ${JSON.stringify(payload)}`);
 
         const config = new Config(core);
         console.log(`[data] config: ${JSON.stringify(config)}`);
 
-        const pull = new Pull(github.context.payload);
-        console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
-
         const token = core.getInput('GITHUB_TOKEN');
         const octokit = github.getOctokit(token);
+
+        if (payload.issue && payload.issue.pull_request) {
+
+            // triggered by a comment on a pull request (issue_comment event) — that
+            // payload has no pull_request object, so fetch it and splice it in
+            console.log(`[info] comment on pull request #${payload.issue.number}, fetching pull request`);
+            const response = await octokit.rest.pulls.get({
+                owner: payload.repository.owner.login,
+                repo: payload.repository.name,
+                pull_number: payload.issue.number
+            });
+            payload.pull_request = response.data;
+        }
+
+        const pull = new Pull(payload);
+        console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
 
         console.log(`[info] get reviews`);
         const reviews = await octokit.rest.pulls.listReviews({

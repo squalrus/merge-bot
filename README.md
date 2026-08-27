@@ -92,6 +92,23 @@ jobs:
         delete_source_branch: true
 ```
 
+### Retrying via a PR comment
+
+Merging can occasionally fail with a transient `Base branch was modified` error (typically when multiple merge-bot runs land close together). To let a comment on the pull request re-trigger evaluation, add `issue_comment` to the workflow's triggers, guarding the job so it only runs for comments on pull requests (`issue_comment` also fires for comments on plain issues, which have no pull request to evaluate):
+
+```yaml
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  merge:
+    if: github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    ...
+```
+
 ## Development
 
 ```bash

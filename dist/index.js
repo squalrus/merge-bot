@@ -37201,17 +37201,31 @@ const renderMessage = (action, config, pull) => {
 
 async function run() {
     try {
-        console.log(`action: ${github_context.payload.action}`);
-        console.log(`[data] payload: ${JSON.stringify(github_context.payload)}`);
+        const payload = github_context.payload;
+        console.log(`action: ${payload.action}`);
+        console.log(`[data] payload: ${JSON.stringify(payload)}`);
 
         const config = new lib_config(core_namespaceObject);
         console.log(`[data] config: ${JSON.stringify(config)}`);
 
-        const pull = new lib_pull(github_context.payload);
-        console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
-
         const token = getInput('GITHUB_TOKEN');
         const octokit = getOctokit(token);
+
+        if (payload.issue && payload.issue.pull_request) {
+
+            // triggered by a comment on a pull request (issue_comment event) — that
+            // payload has no pull_request object, so fetch it and splice it in
+            console.log(`[info] comment on pull request #${payload.issue.number}, fetching pull request`);
+            const response = await octokit.rest.pulls.get({
+                owner: payload.repository.owner.login,
+                repo: payload.repository.name,
+                pull_number: payload.issue.number
+            });
+            payload.pull_request = response.data;
+        }
+
+        const pull = new lib_pull(payload);
+        console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
 
         console.log(`[info] get reviews`);
         const reviews = await octokit.rest.pulls.listReviews({

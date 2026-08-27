@@ -34,7 +34,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Version tracking
 
-Version is tracked in `package.json` (the `"version"` field). It's kept in sync with git tags via `npm version` and enforced by [`.github/workflows/version-check.yml`](.github/workflows/version-check.yml) — never hand-edit it. See [CONTRIBUTING.md](CONTRIBUTING.md)'s Releasing section.
+Version is tracked in `package.json` (the `"version"` field), bumped by hand as part of shipping. [`.github/workflows/release.yml`](.github/workflows/release.yml) tags and publishes a GitHub release automatically whenever a version bump lands on `main`, and [`.github/workflows/version-check.yml`](.github/workflows/version-check.yml) fails loudly if a tag and `package.json` ever disagree. See [CONTRIBUTING.md](CONTRIBUTING.md)'s Releasing section.
 
 ## Working with the backlog
 

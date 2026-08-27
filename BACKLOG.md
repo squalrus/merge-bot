@@ -12,6 +12,7 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 6. Run the build as the correctness gate.
 7. Commit and push the branch, then open a PR with `gh pr create`. If the item traces to a GitHub issue, include `Fixes #<n>` (or `Closes #<n>`) in the PR body so merging auto-closes it — GitHub links the issue to the PR either way. Requires [GitHub CLI](https://cli.github.com) installed and authenticated (`gh auth login`).
 8. After merging, verify the linked issue actually closed (auto-close only fires if the PR merged into the repo's *default* branch — confirm `main` is set as default, or close manually with `gh issue close <n> --comment "Fixed in <PR link>"` if it didn't).
+9. A git tag and GitHub release are created automatically by [`.github/workflows/release.yml`](.github/workflows/release.yml) once the version bump lands on `main` — nothing further to do.
 
 ## Suggested execution order
 

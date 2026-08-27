@@ -30,15 +30,9 @@ This repo uses itself: `.github/workflows/merge-bot.yml` runs `merge-bot` agains
 
 Releases are git tags (`vX.Y.Z`) plus a GitHub release; there's no publish step beyond that since consumers reference a tag or branch directly (e.g. `squalrus/merge-bot@v0.4.5`).
 
-`package.json`'s `version` and the release tag have drifted out of sync before, so always cut a release with `npm version` rather than editing `package.json` and tagging separately — it bumps the version, commits it, and creates the matching tag in one step:
+This is automatic: [`.github/workflows/release.yml`](.github/workflows/release.yml) watches every push to `main` that touches `package.json`. When it finds a version with no matching tag yet, it tags that commit `vX.Y.Z`, pushes the tag, and creates a GitHub release using the corresponding `## [X.Y.Z]` section of [CHANGELOG.md](CHANGELOG.md) as the release notes. So the standard release flow — bump `package.json`'s version, add the CHANGELOG entry, merge to `main` — is sufficient; nothing further to run by hand. If `CHANGELOG.md` has no section for the new version, the workflow fails loudly rather than publishing an empty release.
 
-```bash
-npm version patch   # or minor / major
-git push --follow-tags
-gh release create v$(node -p "require('./package.json').version")
-```
-
-`.github/workflows/version-check.yml` runs on every pushed tag and fails loudly if the tag doesn't match `package.json`'s version — it's a safety net for catching a manual mistake, not a hard block on the tag existing (GitHub doesn't gate tag pushes on status checks the way it does branches). If it fails, delete the bad tag, fix the version, and re-tag.
+`.github/workflows/version-check.yml` runs on every pushed tag and fails loudly if the tag doesn't match `package.json`'s version — for the automated path the two can't drift, but it remains a safety net for a manually-pushed tag (e.g. releasing directly without going through `main`, via `npm version patch && git push --follow-tags`). If it fails, delete the bad tag, fix the version, and re-tag.
 
 If the README's example usage pins a version, update it to the new tag as part of the release.
 

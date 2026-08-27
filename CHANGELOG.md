@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.5.3] — 2026-08-26
+
+### Added
+- **Automated GitHub Releases.** No git tag or GitHub release had been created for any version since v0.4.5 — the shipping process bumps `package.json` and merges a PR, but nothing ever ran `npm version`/`gh release create` as `CONTRIBUTING.md`'s documented process assumed, so 17 versions (v0.4.6 through v0.5.2) went untagged and unreleased. `.github/workflows/release.yml` now watches every push to `main` that touches `package.json`; when it finds a version with no matching tag, it tags that commit, pushes the tag, and publishes a GitHub release using the corresponding `CHANGELOG.md` section as the notes. Backfilled tags and releases for all 17 missing versions retroactively at their original merge commits. (`.github/workflows/release.yml`, `CONTRIBUTING.md`, `CLAUDE.md`, `BACKLOG.md`)
+
 ## [0.5.2] — 2026-08-26
 
 ### Fixed

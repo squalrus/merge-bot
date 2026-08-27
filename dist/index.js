@@ -37224,6 +37224,11 @@ async function run() {
             payload.pull_request = response.data;
         }
 
+        if (!payload.pull_request) {
+            console.log(`[info] no pull_request in payload, nothing to do`);
+            return;
+        }
+
         const pull = new lib_pull(payload);
         console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
 

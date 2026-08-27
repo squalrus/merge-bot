@@ -2,6 +2,15 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.5.1] — 2026-08-26
+
+### Fixed
+- **Crash on events with no `pull_request` in the payload.** Reported in [#77](https://github.com/squalrus/merge-bot/issues/77) by [@chickenandpork](https://github.com/chickenandpork). `Pull`'s constructor read `payload.pull_request.labels` unconditionally; a workflow triggered on `push` (in addition to `pull_request`, as the reporter's was) delivers a payload with no `pull_request` object at all, crashing on every push. `index.js` now guards on `payload.pull_request` existing before constructing `Pull`, logging and no-oping cleanly on non-PR events instead. (`index.js`, `__tests__/index.test.js`)
+
+### Changed
+- **BACKLOG.md's shipping checklist now covers GitHub issues end-to-end.** For any shipped item traced to a GitHub issue: the CHANGELOG entry must link the issue and credit the reporter, the shipping PR body must include `Fixes #<n>`/`Closes #<n>` so merging auto-closes it, and a post-merge step verifies the close actually happened. (`BACKLOG.md`)
+- **AUDIT.md refreshed** to reflect the completed PR/issue triage, the #72 merge and the two bugs it surfaced, the zero-stale-branch state, the fork-merge-token limitation, and stale claims found in CLAUDE.md/CONTRIBUTING.md about the octokit API shape. (`AUDIT.md`)
+
 ## [0.5.0] — 2026-08-26
 
 ### Added

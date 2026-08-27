@@ -147,7 +147,20 @@ test('comment on a plain issue does not attempt to fetch a pull request', async 
 
     expect(octokit.rest.pulls.get).not.toHaveBeenCalled();
     expect(octokit.rest.pulls.merge).not.toHaveBeenCalled();
-    expect(core.setFailed).toHaveBeenCalled();
+    expect(core.setFailed).not.toHaveBeenCalled();
+});
+
+test('a payload with no pull_request at all (e.g. a push event) is a clean no-op', async () => {
+    const octokit = makeOctokit();
+    const { core } = await runIndex({
+        inputs: { labels: 'ready' },
+        payload: { action: null, repository: payloadDefault.repository },
+        octokit
+    });
+
+    expect(octokit.rest.pulls.listReviews).not.toHaveBeenCalled();
+    expect(octokit.rest.pulls.merge).not.toHaveBeenCalled();
+    expect(core.setFailed).not.toHaveBeenCalled();
 });
 
 test('delete_source_branch=false merges without deleting the branch', async () => {

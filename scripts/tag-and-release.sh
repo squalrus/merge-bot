@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tags the current HEAD as vX.Y.Z (from package.json) and publishes a GitHub
-# release using the matching CHANGELOG.md section, unless that tag already
-# exists. Safe to run unconditionally — a no-op when nothing new shipped.
+# release with a short bullet-point summary distilled from the matching
+# CHANGELOG.md section, unless that tag already exists. Safe to run
+# unconditionally — a no-op when nothing new shipped.
 set -euo pipefail
 
 VERSION="$(node -p "require('./package.json').version")"
@@ -12,14 +13,24 @@ if git rev-parse "$TAG" >/dev/null 2>&1; then
     exit 0
 fi
 
-NOTES="$(awk -v heading="## [$VERSION]" '
+CHANGELOG_SECTION="$(awk -v heading="## [$VERSION]" '
     index($0, heading) == 1 { found=1; next }
     found && index($0, "## [") == 1 { exit }
     found { print }
 ' CHANGELOG.md)"
 
-if [ -z "$NOTES" ]; then
+if [ -z "$CHANGELOG_SECTION" ]; then
     echo "::error::No CHANGELOG.md section found for $VERSION (expected a '## [$VERSION]' heading). Add one before merging a version bump."
+    exit 1
+fi
+
+# Release notes are a short bullet list for scanning, not the full CHANGELOG
+# entry: pull just the bold lead sentence off each "- **Lead.** Detail..."
+# bullet. The full explanation stays in CHANGELOG.md for anyone who wants it.
+NOTES="$(echo "$CHANGELOG_SECTION" | sed -n -E 's/^- \*\*(.*)\.\*\*.*/- \1/p')"
+
+if [ -z "$NOTES" ]; then
+    echo "::error::CHANGELOG.md's $VERSION section has no '- **Lead.** ...' bullets to extract release notes from."
     exit 1
 fi
 

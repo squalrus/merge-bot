@@ -61,7 +61,7 @@ You can use PR Merge Bot by configuring a YAML-based workflow file, e.g. `.githu
 name: Merge Bot
 
 on:
-  pull_request:
+  pull_request_target:
     types:
       - labeled
       - ready_for_review
@@ -91,6 +91,8 @@ jobs:
         method: squash
         delete_source_branch: true
 ```
+
+`pull_request_target` (rather than `pull_request`) is required for merge-bot to work on pull requests from forks: GitHub always issues a read-only `GITHUB_TOKEN` for fork-originated `pull_request` events, which makes the actual merge fail even when merge-bot judges the PR mergeable. `pull_request_target` runs with your repo's normal token permissions instead. This is only safe because the workflow above never checks out or executes the fork's code — it just runs the trusted `merge-bot` action against webhook data. If you add a step that checks out `github.event.pull_request.head.sha` to this workflow, you'd be executing untrusted fork code with write access to your repo; don't do that here.
 
 ### Retrying via a PR comment
 

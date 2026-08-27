@@ -37,9 +37,7 @@ No open improvements.
 
 ### Known issues
 
-| Title | Effort | Value |
-|---|---|---|
-| [Not detecting team-requested reviews](#not-detecting-team-requested-reviews) | S | M |
+No open known issues.
 
 ### Limitations
 
@@ -53,11 +51,6 @@ No open limitations.
 **Type:** Feature
 **Why** — Consumers currently either pin an exact tag (`@v0.4.5`) or float on `@main`. A moving major tag (e.g. `v0`) lets them pin `squalrus/merge-bot@v0` and pick up patch/minor releases automatically without tracking every release — the common convention for GitHub Actions (see `actions/checkout@v4`, etc.).
 **Notes:** On release, after `npm version` creates the exact tag, force-move the major tag to point at the new commit and push it: `git tag -f v0 <new-tag> && git push origin v0 --force`. Add this as a step in [CONTRIBUTING.md](CONTRIBUTING.md)'s release process, ideally automated in a release workflow rather than manual. Consider updating the README's example usage to recommend pinning the major tag instead of an exact version once this exists.
-
-### Not detecting team-requested reviews
-**Type:** Bug
-**Why** — Reported in [#37](https://github.com/squalrus/merge-bot/issues/37). [Pull's constructor](lib/pull.js#L10) reads only `payload.pull_request.requested_reviewers`, never `requested_teams` — a CODEOWNERS rule assigning a *team* (as in the original report) won't register as a pending reviewer, so the bot can consider reviews complete while a team review is genuinely still outstanding.
-**Notes:** Add `requested_teams` handling alongside `requested_reviewers` in `Pull`'s review-compilation logic. Likely compounds with [Re-trigger Action when checks complete](#re-trigger-action-when-checks-complete) (a stale payload at merge time) — worth fixing together since the original report probably hit both.
 
 ### Re-trigger Action when checks complete
 **Type:** Feature

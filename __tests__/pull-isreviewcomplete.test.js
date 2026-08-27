@@ -4,6 +4,7 @@ import payloadDefault from '../__mocks__/pull/payload-default.js';
 import payloadReviewers0 from '../__mocks__/pull/payload-reviewers-0.js';
 import payloadReviewers1 from '../__mocks__/pull/payload-reviewers-1.js';
 import payloadReviewers2 from '../__mocks__/pull/payload-reviewers-2.js';
+import payloadReviewersTeam from '../__mocks__/pull/payload-reviewers-team.js';
 
 import reviewsNone from '../__mocks__/pull/reviews-none.js';
 import reviewsDenied from '../__mocks__/pull/reviews-denied.js';
@@ -32,6 +33,13 @@ test('review required, single review requested, no reviews submitted', () => {
 
 test('review required, multiple reviews requested, no reviews submitted', () => {
     const pull = new Pull(payloadReviewers2);
+    pull.compileReviews(reviewsNone);
+
+    expect(pull.isReviewComplete(true)).toBe(false);
+});
+
+test('review required, no reviewers requested, team review requested, no reviews submitted', () => {
+    const pull = new Pull(payloadReviewersTeam);
     pull.compileReviews(reviewsNone);
 
     expect(pull.isReviewComplete(true)).toBe(false);

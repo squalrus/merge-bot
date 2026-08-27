@@ -7,6 +7,7 @@ export default {
     "ref": "05ca724d27c4fae27b402212182b64fda77040b5",
     "repo": "merge-bot",
     "requested_reviewers": [],
+    "requested_teams": [],
     "checks": {},
     "headRepoId": 290815429,
     "baseRepoId": 209922141

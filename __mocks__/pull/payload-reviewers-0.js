@@ -24,6 +24,7 @@ export default {
         ],
         "number": "20",
         "requested_reviewers": [],
+        "requested_teams": [],
         "user": {
             "login": "squalrus"
         }

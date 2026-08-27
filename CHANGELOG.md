@@ -2,6 +2,15 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.5.5] — 2026-08-27
+
+### Added
+- **Migration guide.** [MIGRATION.md](MIGRATION.md) covers what's needed to upgrade a workflow pinned to `v0.4.5` up to current — mainly, switching the `pull_request` trigger to `pull_request_target` for fork PR support (v0.5.2). Linked from a new README "Upgrading" section; the README's example pin and CONTRIBUTING.md's release-process example were also updated off the stale `v0.4.5` reference. (`MIGRATION.md`, `README.md`, `CONTRIBUTING.md`)
+- **`npm run coverage` script.** Runs the existing Jest suite with `--coverage`; previously only reachable via `npm test -- --coverage`. (`package.json`)
+
+### Fixed
+- **Team-requested reviews weren't detected.** Reported in [#37](https://github.com/squalrus/merge-bot/issues/37) by [@aaron-trout](https://github.com/aaron-trout). `Pull`'s constructor read only `payload.pull_request.requested_reviewers`, never `requested_teams` — a CODEOWNERS rule assigning a *team* as reviewer wasn't recognized as a pending review, so `isReviewComplete` could report reviews complete while a team review was genuinely still outstanding. `Pull` now tracks `requested_teams`, and `isReviewComplete` blocks merge while any team review request is unresolved; the test-mode comment also now surfaces requested teams alongside requested reviewers. (`lib/pull.js`, `lib/message.js`, `__tests__/pull-isreviewcomplete.test.js`, `__tests__/pull-canmerge.test.js`, `__mocks__/pull/payload-reviewers-team.js`)
+
 ## [0.5.4] — 2026-08-26
 
 ### Fixed

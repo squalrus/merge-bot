@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.7.0] — 2026-08-27
+
+### Added
+- **Floating major-version tag.** Consumers previously had to either pin an exact tag (`@v0.6.0`) or float on `@main`. `scripts/tag-and-release.sh` now force-moves a `v0` tag to point at every new release, so a workflow can pin `squalrus/merge-bot@v0` and pick up patch/minor releases automatically — the standard convention for GitHub Actions. The README's example usage now pins `@v0` instead of an exact version. (`scripts/tag-and-release.sh`, `README.md`, `CONTRIBUTING.md`)
+
 ## [0.6.0] — 2026-08-27
 
 ### Added

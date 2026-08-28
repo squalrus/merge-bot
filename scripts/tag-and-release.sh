@@ -41,3 +41,10 @@ git push origin "$TAG"
 
 echo "$NOTES" > release-notes.md
 gh release create "$TAG" --title "$TAG" --notes-file release-notes.md
+
+# Force-move the floating major-version tag (e.g. v0) to this release, so
+# consumers can pin `squalrus/merge-bot@v0` and pick up new patch/minor
+# releases automatically, per GitHub Actions convention.
+MAJOR_TAG="v${VERSION%%.*}"
+git tag -f "$MAJOR_TAG" "$TAG"
+git push origin "$MAJOR_TAG" --force

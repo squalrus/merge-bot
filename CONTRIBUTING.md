@@ -38,7 +38,7 @@ Either way, the standard flow — bump `package.json`'s version, add the CHANGEL
 
 `.github/workflows/version-check.yml` runs on every pushed tag and fails loudly if the tag doesn't match `package.json`'s version — for the automated path the two can't drift, but it remains a safety net for a manually-pushed tag (e.g. releasing directly without going through `main`, via `npm version patch && git push --follow-tags`). If it fails, delete the bad tag, fix the version, and re-tag.
 
-If the README's example usage pins a version, update it to the new tag as part of the release.
+`scripts/tag-and-release.sh` also force-moves a floating major-version tag (e.g. `v0`) to point at every new release, so consumers can pin `squalrus/merge-bot@v0` and pick up patch/minor releases automatically instead of tracking every exact tag — the README's example usage pins this floating tag, so it doesn't need updating on release.
 
 ## Reporting bugs / requesting features
 

@@ -23,7 +23,6 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 
 | Title | Effort | Value |
 |---|---|---|
-| [Maintain a floating major-version tag](#maintain-a-floating-major-version-tag) | S | M |
 | [Allow merges even if the base branch changes](#allow-merges-even-if-the-base-branch-changes) | S | M |
 | [Follow the configured required review count](#follow-the-configured-required-review-count) | S | M |
 | [Update from base branch before merging](#update-from-base-branch-before-merging) | M | M |
@@ -45,11 +44,6 @@ No open limitations.
 ---
 
 ## Open
-
-### Maintain a floating major-version tag
-**Type:** Feature
-**Why** — Consumers currently either pin an exact tag (`@v0.4.5`) or float on `@main`. A moving major tag (e.g. `v0`) lets them pin `squalrus/merge-bot@v0` and pick up patch/minor releases automatically without tracking every release — the common convention for GitHub Actions (see `actions/checkout@v4`, etc.).
-**Notes:** On release, after `npm version` creates the exact tag, force-move the major tag to point at the new commit and push it: `git tag -f v0 <new-tag> && git push origin v0 --force`. Add this as a step in [CONTRIBUTING.md](CONTRIBUTING.md)'s release process, ideally automated in a release workflow rather than manual. Consider updating the README's example usage to recommend pinning the major tag instead of an exact version once this exists.
 
 ### Allow merges even if the base branch changes
 **Type:** Feature

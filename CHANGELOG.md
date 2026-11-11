@@ -2,6 +2,15 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.7.1] — 2026-11-11
+
+### Fixed
+- **Security: bundled `undici` upgraded to 6.29.1.** `npm audit` flagged eight high-severity advisories in `undici` (DoS via WebSocket/EventSource/content-encoding handling, a dropped-TLS-options certificate validation bypass, and response splitting in the retry interceptor). It's pulled in by `@actions/github` and `@actions/core` and ships inside the action, so `dist/index.js` was rebuilt. (`package-lock.json`, `dist/index.js`)
+- **Dev-dependency advisories cleared.** `npm audit fix` resolved high-severity `brace-expansion` and `js-yaml` advisories in the ESLint/Jest trees; new `overrides` in `package.json` force patched `glob` (14.0.4) and `minimatch` (11.0.8) inside Jest's tree, where `npm audit fix --force` would otherwise have downgraded Jest 30 → 25. One low-severity `deepmerge` advisory remains in Jest's tree (dev-only, no patched release exists). (`package.json`, `package-lock.json`)
+
+### Changed
+- **Contributor docs corrected.** CLAUDE.md's "Known constraints" and CONTRIBUTING.md still described the long-gone `node12` runtime and `@actions/github` v4 call shape; they now reflect `node20`, `octokit.rest.*`, and the new `overrides`. AUDIT.md's dependency status updated to match. (`CLAUDE.md`, `CONTRIBUTING.md`, `AUDIT.md`)
+
 ## [0.7.0] — 2026-08-27
 
 ### Added

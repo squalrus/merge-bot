@@ -12,7 +12,7 @@ After the 2026-08-26 remediation push (v0.4.7 through v0.4.17: runtime fix, depe
 |---|---|
 | Tests | ✅ Passing (59/59), 100% statement/branch coverage across `index.js` and `lib/` |
 | Action runtime | ✅ `node20` |
-| Dependencies | ✅ `npm audit`: 0 vulnerabilities; `.github/dependabot.yml` scheduling weekly scans |
+| Dependencies | ✅ `npm audit`: 5 low (all `deepmerge`, dev-only, no fix exists); `.github/dependabot.yml` scheduling weekly scans |
 | CI/CD | ✅ `test.yml` / `build-check.yml` / `version-check.yml` / `merge-bot.yml` (now also triggers on `issue_comment`, see below) |
 | Open PRs | 🟢 **0 open** — all 9 triaged this session (7 dependabot closed as superseded, #12 closed as stale, #72 ported and merged) |
 | Open issues | 🟢 8 open on GitHub as of this writing, but #77 (v0.5.1), #37 (v0.5.5), and #22 (v0.6.0, this shipment) are fixed and will auto-close on merge, leaving 5 |
@@ -34,7 +34,7 @@ Both [CLAUDE.md](CLAUDE.md) ("Known constraints") and [CONTRIBUTING.md](CONTRIBU
 
 Unchanged since the v0.4.11 upgrade (`@actions/core` 1→3, `@actions/github` 4→9, `jest` 26→30) — no dependency work happened this session beyond what dependabot's own scheduled PRs will bring going forward.
 
-`npm audit` (re-checked 2026-08-26): **0 vulnerabilities**.
+`npm audit` (re-checked 2026-11-11): **5 low** — all one advisory on `deepmerge` (GHSA-gcqx-w48m-w2h4) reached only through jest's dev-only tree, with no patched release published. v0.7.1 cleared the rest: 3 high (`undici` — the one runtime dependency affected, bundled in `dist/` — plus dev-only `brace-expansion` and `js-yaml`) via `npm audit fix`, and moderate `glob`/`minimatch` in jest's tree via `package.json` `overrides`.
 
 **Dependabot PRs — resolved 2026-08-26.** The 7 long-open dependabot PRs (#64, #69–#71, #73–#75) were all closed as superseded: each target dependency was already at or past the proposed version, or no longer in the tree at all, following the v0.4.11 upgrade. [`.github/dependabot.yml`](.github/dependabot.yml) (added in v0.4.17) now schedules weekly `npm` scans with dev-dependency bumps grouped into a single PR, so future dependency PRs should arrive in scheduled batches instead of drifting open for years.
 

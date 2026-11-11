@@ -46,4 +46,4 @@ Use the issue templates under `.github/ISSUE_TEMPLATE/`. Note they're currently 
 
 ## Known rough edges
 
-Before proposing an upgrade to `@actions/github`, note that `index.js` calls REST methods directly on the octokit client (e.g. `octokit.pulls.listReviews`) rather than under `.rest.*`. That's the shape of the API in the currently-pinned major version — a version bump is a breaking API-shape change here, not a drop-in update. See [AUDIT.md](AUDIT.md) for the full dependency/runtime picture before starting infrastructure work, so you're not duplicating a tracked item.
+Before proposing an upgrade to `@actions/github`, note that `index.js` calls REST methods under `octokit.rest.*` (e.g. `octokit.rest.pulls.listReviews`), and everything it imports is bundled into `dist/index.js` — treat a major bump as a breaking change to verify end to end, not a drop-in update. See [AUDIT.md](AUDIT.md) for the full dependency/runtime picture before starting infrastructure work, so you're not duplicating a tracked item.

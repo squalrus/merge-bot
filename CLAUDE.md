@@ -23,8 +23,9 @@ Guidance for Claude Code when working in this repository.
 
 ## Known constraints — read before proposing dependency/runtime upgrades
 
-- `action.yml` declares `runs.using: node12`, a runtime GitHub Actions has since removed. This is a known critical issue (see [AUDIT.md](AUDIT.md)) — don't "fix" it as a side effect of an unrelated change; treat it as its own deliberate PR since it may have downstream effects on how the action is invoked.
-- `@actions/github` is pinned at v4, and `index.js` calls REST methods directly on the octokit client (`octokit.pulls.listReviews`, `octokit.checks.listForRef`, etc.) rather than under `.rest.*`. Upgrading past v4 changes this call shape — it is a breaking-change upgrade, not a version bump.
+- `action.yml` declares `runs.using: node20`. Changing the runtime is its own deliberate PR, never a side effect of an unrelated change, since it affects how the action is invoked.
+- `@actions/github` is at v9; `index.js` calls REST methods under `octokit.rest.*` (`octokit.rest.pulls.listReviews`, etc.). A major bump of `@actions/github` or `@actions/core` changes what's bundled into `dist/index.js` — treat it as a breaking-change upgrade, not a version bump.
+- `package.json` has `overrides` forcing `glob@>=9` → `^14.0.4` and `minimatch@>=7` → `^11.0.8` inside jest's dev-only tree, to clear `npm audit` advisories jest hasn't picked up yet. Drop them once jest's own ranges reach patched versions (check with `npm ls glob minimatch`). `deepmerge` (via `jest-config`) has a low-severity advisory with no patched release — accepted, dev-only.
 
 ## Where things are tracked
 

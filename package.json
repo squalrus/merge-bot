@@ -1,6 +1,6 @@
 {
   "name": "merge-bot",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "",
   "main": "index.js",
   "type": "module",
@@ -34,5 +34,9 @@
     "eslint": "^9.39.5",
     "globals": "^15.9.0",
     "jest": "^30.4.2"
+  },
+  "overrides": {
+    "glob@>=9": "^14.0.4",
+    "minimatch@>=7": "^11.0.8"
   }
 }

@@ -9,6 +9,8 @@ The workflow can use required labels, blocking labels, and require that reviewer
 
 Once conditions are met the pull request will be integrated and branch deleted.
 
+If another merge advances the base branch at the same time, the action refreshes the pull request state and retries up to two times. It stops retrying if the head commit changes or the pull request no longer meets the configured conditions.
+
 ![merged GitHub pull request and deleted branch](./assets/integrate.png)
 
 ## Inputs

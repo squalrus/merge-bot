@@ -59,18 +59,51 @@ function makeGithub(payload, octokit) {
     };
 }
 
+function makeBaseModifiedError() {
+    const error = new Error('Base branch was modified. Review and try the merge again.');
+    error.status = 409;
+    return error;
+}
+
+function makeCurrentPullRequest({ baseSha, headSha = payloadDefault.pull_request.head.sha, labels = payloadDefault.pull_request.labels } = {}) {
+    return {
+        ...payloadDefault.pull_request,
+        state: 'open',
+        base: {
+            ...payloadDefault.pull_request.base,
+            sha: baseSha
+        },
+        head: {
+            ...payloadDefault.pull_request.head,
+            sha: headSha
+        },
+        labels
+    };
+}
+
 // index.js runs immediately on import (no exported entry point), so each
 // scenario needs a fresh module registry and fresh mocks.
-async function runIndex({ inputs, payload, octokit }) {
+async function runIndex({ inputs, payload, octokit, immediateRetryTimers = false }) {
     jest.resetModules();
     jest.unstable_mockModule('@actions/core', () => makeCore(inputs));
     jest.unstable_mockModule('@actions/github', () => makeGithub(payload, octokit));
+
+    if (immediateRetryTimers) {
+        jest.spyOn(global, 'setTimeout').mockImplementation(callback => {
+            callback();
+            return 0;
+        });
+    }
 
     await import('../index.js');
 
     // let the chain of awaits (listReviews -> listForRef -> merge/comment -> deleteRef) settle
     await flushPromises();
     await flushPromises();
+
+    if (immediateRetryTimers) {
+        jest.restoreAllMocks();
+    }
 
     return {
         core: await import('@actions/core'),
@@ -111,7 +144,8 @@ test('eligible pull request is merged and its branch deleted', async () => {
         owner: 'squalrus',
         repo: 'merge-bot',
         pull_number: 20,
-        merge_method: 'squash'
+        merge_method: 'squash',
+        sha: '1234724d27c4fae27b402212182b64fda77040b5'
     });
     expect(octokit.rest.git.deleteRef).toHaveBeenCalledWith({
         owner: 'squalrus',
@@ -120,6 +154,143 @@ test('eligible pull request is merged and its branch deleted', async () => {
     });
     expect(octokit.rest.issues.createComment).not.toHaveBeenCalled();
     expect(core.setFailed).not.toHaveBeenCalled();
+});
+
+test('eligible pull request retries a base-branch conflict after refreshing its state', async () => {
+    const initialPayload = {
+        action: 'synchronize',
+        ...payloadDefault,
+        pull_request: makeCurrentPullRequest({ baseSha: 'base-sha-1' })
+    };
+    const latestPullRequest = makeCurrentPullRequest({ baseSha: 'base-sha-2' });
+    const octokit = makeOctokit({
+        pulls: {
+            get: jest.fn().mockResolvedValue({ data: latestPullRequest }),
+            listReviews: jest.fn().mockResolvedValue(reviewsNone),
+            merge: jest.fn().mockRejectedValueOnce(makeBaseModifiedError()).mockResolvedValue({})
+        }
+    });
+
+    const { core } = await runIndex({
+        inputs: { labels: 'ready' },
+        payload: initialPayload,
+        octokit,
+        immediateRetryTimers: true
+    });
+
+    expect(octokit.rest.pulls.merge).toHaveBeenCalledTimes(2);
+    expect(octokit.rest.pulls.get).toHaveBeenCalledTimes(1);
+    expect(octokit.rest.pulls.merge).toHaveBeenLastCalledWith(expect.objectContaining({
+        pull_number: 20,
+        sha: payloadDefault.pull_request.head.sha
+    }));
+    expect(core.setFailed).not.toHaveBeenCalled();
+});
+
+test('base-branch retry stops when the pull request head changed', async () => {
+    const initialPayload = {
+        action: 'synchronize',
+        ...payloadDefault,
+        pull_request: makeCurrentPullRequest({ baseSha: 'base-sha-1' })
+    };
+    const latestPullRequest = makeCurrentPullRequest({ baseSha: 'base-sha-2', headSha: 'new-head-sha' });
+    const octokit = makeOctokit({
+        pulls: {
+            get: jest.fn().mockResolvedValue({ data: latestPullRequest }),
+            listReviews: jest.fn().mockResolvedValue(reviewsNone),
+            merge: jest.fn().mockRejectedValue(makeBaseModifiedError())
+        }
+    });
+
+    const { core } = await runIndex({
+        inputs: { labels: 'ready' },
+        payload: initialPayload,
+        octokit,
+        immediateRetryTimers: true
+    });
+
+    expect(octokit.rest.pulls.merge).toHaveBeenCalledTimes(1);
+    expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Base branch was modified'));
+});
+
+test('base-branch retry skips a pull request that is no longer eligible', async () => {
+    const initialPayload = {
+        action: 'synchronize',
+        ...payloadDefault,
+        pull_request: makeCurrentPullRequest({ baseSha: 'base-sha-1' })
+    };
+    const latestPullRequest = makeCurrentPullRequest({
+        baseSha: 'base-sha-2',
+        labels: payloadDefault.pull_request.labels.filter(label => label.name !== 'ready')
+    });
+    const octokit = makeOctokit({
+        pulls: {
+            get: jest.fn().mockResolvedValue({ data: latestPullRequest }),
+            listReviews: jest.fn().mockResolvedValue(reviewsNone),
+            merge: jest.fn().mockRejectedValueOnce(makeBaseModifiedError())
+        }
+    });
+
+    const { core } = await runIndex({
+        inputs: { labels: 'ready' },
+        payload: initialPayload,
+        octokit,
+        immediateRetryTimers: true
+    });
+
+    expect(octokit.rest.pulls.merge).toHaveBeenCalledTimes(1);
+    expect(core.setFailed).not.toHaveBeenCalled();
+});
+
+test('merge conflicts other than a modified base branch are not retried', async () => {
+    const error = new Error('Head SHA does not match expected SHA');
+    error.status = 409;
+    const octokit = makeOctokit({
+        pulls: {
+            get: jest.fn().mockResolvedValue({ data: payloadDefault.pull_request }),
+            listReviews: jest.fn().mockResolvedValue(reviewsNone),
+            merge: jest.fn().mockRejectedValue(error)
+        }
+    });
+
+    const { core } = await runIndex({
+        inputs: { labels: 'ready' },
+        payload: { action: 'synchronize', ...payloadDefault },
+        octokit
+    });
+
+    expect(octokit.rest.pulls.merge).toHaveBeenCalledTimes(1);
+    expect(octokit.rest.pulls.get).not.toHaveBeenCalled();
+    expect(core.setFailed).toHaveBeenCalledWith(error.message);
+});
+
+test('base-branch merge retries are bounded', async () => {
+    const initialPayload = {
+        action: 'synchronize',
+        ...payloadDefault,
+        pull_request: makeCurrentPullRequest({ baseSha: 'base-sha-1' })
+    };
+    const latestPullRequests = ['base-sha-2', 'base-sha-3'].map(baseSha => makeCurrentPullRequest({ baseSha }));
+    const octokit = makeOctokit({
+        pulls: {
+            get: jest.fn()
+                .mockResolvedValueOnce({ data: latestPullRequests[0] })
+                .mockResolvedValueOnce({ data: latestPullRequests[1] }),
+            listReviews: jest.fn().mockResolvedValue(reviewsNone),
+            merge: jest.fn().mockRejectedValue(makeBaseModifiedError())
+        }
+    });
+
+    const { core } = await runIndex({
+        inputs: { labels: 'ready' },
+        payload: initialPayload,
+        octokit,
+        immediateRetryTimers: true
+    });
+
+    expect(octokit.rest.pulls.merge).toHaveBeenCalledTimes(3);
+    expect(octokit.rest.pulls.get).toHaveBeenCalledTimes(2);
+    expect(core.setFailed).toHaveBeenCalledWith(expect.stringContaining('Base branch was modified'));
 });
 
 test('comment on a pull request fetches it and merges it', async () => {

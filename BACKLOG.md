@@ -23,7 +23,6 @@ Tracks future features, improvements, and known bugs. Items here are not committ
 
 | Title | Effort | Value |
 |---|---|---|
-| [Allow merges even if the base branch changes](#allow-merges-even-if-the-base-branch-changes) | S | M |
 | [Follow the configured required review count](#follow-the-configured-required-review-count) | S | M |
 | [Update from base branch before merging](#update-from-base-branch-before-merging) | M | M |
 | [Time based allow/block of merges](#time-based-allowblock-of-merges) | M | L |
@@ -44,11 +43,6 @@ No open limitations.
 ---
 
 ## Open
-
-### Allow merges even if the base branch changes
-**Type:** Feature
-**Why** — Reported in [#56](https://github.com/squalrus/merge-bot/issues/56). [index.js](index.js#L57) calls `octokit.pulls.merge` with no retry logic; a "base branch was modified" failure from a concurrent merge just bubbles up to `core.setFailed`, forcing a manual re-run instead of the bot recovering on its own.
-**Notes:** Catch the specific GitHub API error for base-branch-changed and retry the merge (possibly after re-fetching PR state), bounded to a small number of attempts.
 
 ### Follow the configured required review count
 **Type:** Feature

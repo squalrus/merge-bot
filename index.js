@@ -5,13 +5,21 @@ import Config from './lib/config.js';
 import Pull from './lib/pull.js';
 import renderMessage from './lib/message.js';
 
+const MAX_MERGE_ATTEMPTS = 3;
+const MERGE_RETRY_DELAY_MS = 200;
+
 async function fetchPullRequest(octokit, owner, repo, pull_number) {
     console.log(`[info] fetching pull request #${pull_number}`);
     const response = await octokit.rest.pulls.get({ owner, repo, pull_number });
     return response.data;
 }
 
-async function processPullRequest(payload, config, octokit) {
+function isBaseBranchModifiedError(error) {
+    const message = error?.response?.data?.message ?? error?.message ?? '';
+    return error?.status === 409 && message.includes('Base branch was modified');
+}
+
+async function evaluatePullRequest(payload, octokit) {
     const pull = new Pull(payload);
     console.log(`[data] pull (payload): ${JSON.stringify(pull)}`);
 
@@ -33,6 +41,54 @@ async function processPullRequest(payload, config, octokit) {
     pull.compileChecks(checks);
     console.log(`[data] pull (checks + reviews): ${JSON.stringify(pull)}`);
 
+    return pull;
+}
+
+async function mergePullRequestWithRetry(payload, config, octokit, initialPull) {
+    let pull = initialPull;
+    let baseSha = payload.pull_request.base.sha;
+
+    for (let attempt = 1; attempt <= MAX_MERGE_ATTEMPTS; attempt++) {
+        try {
+            await octokit.rest.pulls.merge({
+                owner: pull.owner,
+                repo: pull.repo,
+                pull_number: pull.pull_number,
+                merge_method: config.merge_method,
+                sha: pull.ref
+            });
+            console.log(`[info] merge complete`);
+            return pull;
+        } catch (error) {
+            if (!isBaseBranchModifiedError(error) || attempt === MAX_MERGE_ATTEMPTS) {
+                throw error;
+            }
+
+            console.log(`[warning] base branch changed during merge; retrying (${attempt}/${MAX_MERGE_ATTEMPTS - 1})`);
+            const retryDelay = MERGE_RETRY_DELAY_MS * attempt + Math.floor(Math.random() * MERGE_RETRY_DELAY_MS);
+            await new Promise(resolve => setTimeout(resolve, retryDelay));
+
+            const latest = await fetchPullRequest(octokit, pull.owner, pull.repo, pull.pull_number);
+            if (latest.state !== 'open' || latest.head.sha !== pull.ref || latest.base.sha === baseSha) {
+                throw error;
+            }
+
+            const refreshedPayload = { ...payload, pull_request: latest };
+            const refreshedPull = await evaluatePullRequest(refreshedPayload, octokit);
+            if (!refreshedPull.canMerge(config)) {
+                console.log(`[info] pull request is no longer eligible after base branch changed; skipping retry`);
+                return null;
+            }
+
+            pull = refreshedPull;
+            baseSha = latest.base.sha;
+        }
+    }
+}
+
+async function processPullRequest(payload, config, octokit) {
+    const pull = await evaluatePullRequest(payload, octokit);
+
     console.log(`merge: ${pull.canMerge(config)}`);
 
     if (config.test_mode) {
@@ -50,16 +106,13 @@ async function processPullRequest(payload, config, octokit) {
 
             // merge the pull request
             console.log(`[info] merge start`);
-            await octokit.rest.pulls.merge({
-                owner: pull.owner,
-                repo: pull.repo,
-                pull_number: pull.pull_number,
-                merge_method: config.merge_method
-            });
-            console.log(`[info] merge complete`);
+            const mergedPull = await mergePullRequestWithRetry(payload, config, octokit, pull);
+            if (!mergedPull) {
+                return;
+            }
 
             if (config.delete_source_branch) {
-                if (pull.headRepoId !== pull.baseRepoId) {
+                if (mergedPull.headRepoId !== mergedPull.baseRepoId) {
                     console.log(`[warning] unable to delete branch from fork, branch retained`);
                 } else {
                     // delete the branch
@@ -67,7 +120,7 @@ async function processPullRequest(payload, config, octokit) {
                     await octokit.rest.git.deleteRef({
                         owner: pull.owner,
                         repo: pull.repo,
-                        ref: pull.ref
+                        ref: mergedPull.ref
                     });
                     console.log(`[info] delete complete`);
                 }

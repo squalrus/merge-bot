@@ -2,6 +2,11 @@
 
 User-visible changes, newest first. Follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and [semver](https://semver.org/) versioning.
 
+## [0.8.0] — 2026-11-16
+
+### Added
+- **Retry transient base-branch merge conflicts.** When concurrent merges advance the base branch, the action refreshes pull request state and retries up to two times with a short backoff. It pins each attempt to the original head commit and rechecks current labels, reviews, and checks before retrying, so an updated or no-longer-eligible pull request is not merged. Reported in [#56](https://github.com/squalrus/merge-bot/issues/56) by [@RevolutionTech](https://github.com/RevolutionTech). (`index.js`, `__tests__/index.test.js`, `dist/index.js`)
+
 ## [0.7.1] — 2026-11-11
 
 ### Fixed
